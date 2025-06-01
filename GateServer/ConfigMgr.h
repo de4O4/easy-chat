@@ -54,8 +54,7 @@ public:
 		this->_config_map = src._config_map;
 	}
 
-	static ConfigMgr& Instance()
-		;
+	static ConfigMgr& Instance();
 private:
 	ConfigMgr();
 	// ´æ´¢sectionºÍkey-value¶ÔµÄmap  
