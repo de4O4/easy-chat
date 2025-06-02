@@ -110,7 +110,7 @@ void TestRedisMgr() {
 
 int main()
 {
-    TestRedisMgr();
+    //TestRedisMgr();
     try
     {
         unsigned short port = static_cast<unsigned short>(8080);
