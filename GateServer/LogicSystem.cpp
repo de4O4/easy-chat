@@ -122,21 +122,21 @@ LogicSystem::LogicSystem()
 			beast::ostream(connection->_response.body()) << jsonstr;
 			return true;
 		}
-		if (varify_code != src_root["varify_code"].asString()) {	//如果验证码不匹配，返回错误
+		if (varify_code != src_root["varifycode"].asString()) {	//如果验证码不匹配，返回错误
 			std::cout << "Varify code is not match!" << std::endl;
 			root["error"] = ErrorCodes::VarifyCodeErr;
 			std::string jsonstr = root.toStyledString();
 			beast::ostream(connection->_response.body()) << jsonstr;
 			return true;
 		}
-		bool b_user_exist = RedisMgr::GetInstance()->Exists(src_root["email"].asString());	//检查用户是否存在
-		if (b_user_exist) {
-			std::cout << " user exist" << std::endl;
-			root["error"] = ErrorCodes::UserExist;
-			std::string jsonstr = root.toStyledString();
-			beast::ostream(connection->_response.body()) << jsonstr;
-			return true;
-		}
+		//bool b_user_exist = RedisMgr::GetInstance()->Exists(src_root["email"].asString());	//检查用户是否存在
+		//if (b_user_exist) {
+		//	std::cout << " user exist" << std::endl;
+		//	root["error"] = ErrorCodes::UserExist;
+		//	std::string jsonstr = root.toStyledString();
+		//	beast::ostream(connection->_response.body()) << jsonstr;
+		//	return true;
+		//}
 		root["error"] = 0;
 		root["email"] = email;
 		root["user"] = name;
