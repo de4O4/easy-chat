@@ -66,7 +66,6 @@ public:
 		}
 	}
 
-
 private:
 	std::string _url;
 	std::string _user;
@@ -79,6 +78,18 @@ private:
 	std::atomic<bool> _b_stop;
 };
 
+
+struct UserInfo {
+	std::string name;
+	std::string pwd;
+	int uid;
+	std::string email;
+};
+
+
+
+
+
 class MysqlDao
 {
 public:
@@ -87,6 +98,7 @@ public:
 	int RegUser(const std::string& name, const std::string& email, const std::string& pass);
 	bool CheckEmail(const std::string& name, const std::string& email);
 	bool UpdatePass(const std::string& name, const std::string& pass);
+	bool CheckPass(const std::string& email, const std::string& pass , UserInfo& userinfo);
 private:
 	std::unique_ptr<MysqlPool> _pool;
 };
