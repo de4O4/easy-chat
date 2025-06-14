@@ -125,14 +125,12 @@ bool MysqlDao::CheckPass(const std::string& email, const std::string& pass, User
 		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());	//执行查询
 		std::string origin_pwd = "";
 		std::string name = "";
-		if (res->next()) {
+		while (res->next()) {
 			origin_pwd = res->getString("pwd");
 			name = res->getString("name");
-			std::cout << "password is " << origin_pwd <<std::endl;
-		}
-		else {
-			std::cout << "查询不到这个用户：" << email << std::endl;
-			return false;
+			// 输出查询到的密码
+			std::cout << "Password: " << origin_pwd << std::endl;
+			break;
 		}
 		if (origin_pwd != pass) {
 			std::cout << "密码错误" << std::endl;

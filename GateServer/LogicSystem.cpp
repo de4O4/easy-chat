@@ -2,6 +2,7 @@
 #include "HttpConnection.h"
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
+#include "StatusGrpcClient.h"
 
 LogicSystem::~LogicSystem()
 {
@@ -218,7 +219,7 @@ LogicSystem::LogicSystem()
 		return true;
 		});
 
-	RegPost("/user_login", [](std::unique_ptr<HttpConnection> connection) {
+	RegPost("/user_login", [](std::shared_ptr<HttpConnection> connection) {
 		auto body_str = beast::buffers_to_string(connection->_request.body().data());		//将请求的url转为string类型处理
 		std::cout << "receive body is " << body_str << std::endl;
 		connection->_response.set(http::field::content_type, "text/json");
@@ -234,8 +235,8 @@ LogicSystem::LogicSystem()
 			return true;
 		}
 		
-		auto email = src_root["email"].toStyledString();
-		auto pass = src_root["passwd"].toStyledString();
+		auto email = src_root["email"].asString();
+		auto pass = src_root["passwd"].asString();
 		UserInfo userinfo;
 		bool passwd_valid = MysqlMgr::GetInstance()->CheckPass(email, pass, userinfo);	//检查密码是否正确
 		if (!passwd_valid) {
@@ -246,11 +247,22 @@ LogicSystem::LogicSystem()
 			return true;
 		}
 
+		auto reply = StatusGrpcClient::GetInstance()->GetChatServer(userinfo.uid);	//获取用户对应的聊天服务器地址
+		if(reply.error()) {
+			std::cout << " grpc get chat server failed, error is " << reply.error() << std::endl;
+			root["error"] = ErrorCodes::RPCFailed;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(connection->_response.body()) << jsonstr;
+			return true;
+		}
+		std::cout << "succeed to load userinfo uid is " << userinfo.uid << std::endl;
+
 		root["error"] = 0;
 		root["user"] = userinfo.name;
 		root["uid"] = userinfo.uid;
-		//root["token"] = reply.token();
-		//root["host"] = reply.host();
+		root["token"] = reply.token();
+		root["host"] = reply.host();
+		root["port"] = reply.port();
 		std::string jsonstr = root.toStyledString();
 		beast::ostream(connection->_response.body()) << jsonstr;
 		return true;
