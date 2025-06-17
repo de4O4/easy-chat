@@ -4,7 +4,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast.hpp>
-#include <boost/asio.hpp>
 #include <queue>
 #include <mutex>
 #include <memory>
@@ -28,6 +27,7 @@ public:
 	std::string& GetSessionid();
 	void SetUserid(int uid);
 	int GetUserid();
+	void Start();
 	void Send(char* msg, short max_length, short msgid);
 	void Send(std::string msg, short msgid);
 	void Close();
@@ -54,5 +54,14 @@ private:
 	std::shared_ptr<MsgNode> _recv_head_node;
 	int _user_uid;
 	std::mutex _session_mtx;
+};
+
+class LogicNode {
+	friend class LogicSystem;
+public:
+	LogicNode(std::shared_ptr<CSession> session, std::shared_ptr<RecvNode> recvnode);
+private:
+	std::shared_ptr<CSession> _session;
+	std::shared_ptr<RecvNode> _recvnode;
 };
 
