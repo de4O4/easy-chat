@@ -1,0 +1,372 @@
+/* ---------------------- 全局基础样式（两个界面通用） ---------------------- */
+* {
+    font-family: "微软雅黑", "Segoe UI";
+    font-size: 14px;
+    outline: none;
+    border: none;
+}
+
+QDialog {
+    background-color: #F8F9FA;
+    border-radius: 12px;
+}
+
+QLineEdit {
+    height: 40px;
+    padding: 0 12px;
+    border: 2px solid #E9ECEF;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #212529;
+}
+QLineEdit:focus {
+    border-color: #4263EB;
+    background: #FEFEFE;
+}
+
+QPushButton {
+    border-radius: 8px;
+    /* 移除QSS不支持的transition/transform */
+}
+QPushButton:hover {
+    opacity: 0.9; /* 仅保留QSS支持的简单状态 */
+}
+QPushButton:pressed {
+    opacity: 0.8;
+}
+
+/* ---------------------- 登录对话框（loginDialog专属） ---------------------- */
+loginDialog QVBoxLayout#verticalLayout {
+    margin: 24px;
+}
+
+loginDialog QLabel#label {
+    qproperty-scaledContents: false;
+    min-height: 180px;  /* 根据图片实际高度调整 */
+    max-height: 180px;
+    min-width: 240px;   /* 根据图片实际宽度调整 */
+    max-width: 240px;
+    alignment: center;
+    margin: 10px 0;
+    /* 移除cursor（QLabel默认支持cursor，若需保留需确认是否必要） */
+}
+
+/* 图片所在的父容器（QWidget#widget） */
+loginDialog QWidget#widget {
+    qproperty-sizePolicy: Preferred Fixed;  /* 水平方向Preferred，垂直方向Fixed（QSS正确语法） */
+}
+
+/* 图片标签（QLabel#label） */
+loginDialog QLabel#label {
+    qproperty-scaledContents: false;  /* 正确设置QLabel的scaledContents属性 */
+    min-height: 190px;               /* QSS支持的尺寸限制 */
+    max-height: 190px;
+    min-width: 250px;
+    max-width: 250px;
+    qproperty-alignment: AlignCenter; /* 正确设置对齐方式（Qt枚举值） */
+    margin: 10px 0;                  /* QSS支持的边距 */
+}
+
+
+loginDialog QLabel#emaillabel,
+loginDialog QLabel#passlabel {
+    color: #495057;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: right;
+}
+
+loginDialog QLabel#forgetlabel {
+    color: #4263EB;
+    font-size: 13px;
+    /* 移除cursor（QLabel支持cursor，若需点击效果建议用QPushButton替代） */
+}
+loginDialog QLabel#forgetlabel:hover {
+    color: #364FC7;
+}
+
+loginDialog QPushButton#loginbutton {
+    background: #4263EB;
+    color: white;
+    min-width: 120px;
+    font-weight: 600;
+}
+
+loginDialog QPushButton#regitbutton {
+    background: #51CF66;
+    color: white;
+    min-width: 120px;
+    font-weight: 600;
+}
+
+/* ---------------------- 注册对话框（registerDialog专属） ---------------------- */
+registerDialog QVBoxLayout#verticalLayout {
+    margin: 24px;
+}
+
+registerDialog QLabel#userlabel,
+registerDialog QLabel#emaillabel,
+registerDialog QLabel#passlabel,
+registerDialog QLabel#confirmlabel,
+registerDialog QLabel#varifylabel {
+    color: #495057;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: right;
+}
+
+registerDialog QLineEdit#varifyedit {
+    min-width: 180px;
+}
+
+registerDialog QPushButton#getcodebut {
+    background: #FF922B;
+    color: white;
+    margin-left: 8px;
+    padding: 0 12px;
+}
+
+registerDialog QPushButton#confirmbut {
+    background: #4263EB;
+    color: white;
+    margin-right: 8px;
+}
+registerDialog QPushButton#cancelbut {
+    background: #ADB5BD;
+    color: white;
+    margin-left: 8px;
+}
+
+#errtip[state='normal']{
+   color: green;
+}
+
+#errtip[state='err']{
+   color: red;
+}
+
+#pass_visible[state='unvisible']{
+   border-image: url(:/res/unvisible.png);
+}
+#pass_visible[state='unvisible_hover']{
+   border-image: url(:/res/unvisible_hover.png);
+}
+#pass_visible[state='visible']{
+   border-image: url(:/res/visible.png);
+}
+#pass_visible[state='visible_hover']{
+   border-image: url(:/res/visible_hover.png);
+}
+#confirm_visible[state='unvisible']{
+   border-image: url(:/res/unvisible.png);
+}
+#confirm_visible[state='unvisible_hover']{
+   border-image: url(:/res/unvisible_hover.png);
+}
+#confirm_visible[state='visible']{
+   border-image: url(:/res/visible.png);
+}
+#confirm_visible[state='visible_hover']{
+   border-image: url(:/res/visible_hover.png);
+}
+
+
+
+
+/* 重置密码对话框样式 */
+
+/* 主对话框背景 */
+QDialog#ResetDialog {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #f8f9fa, stop:1 #e9ecef);
+    border-radius: 15px;
+    border: 2px solid #dee2e6;
+}
+
+
+
+/* 普通标签样式 */
+QLabel {
+    color: #495057;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+QLabel#userlabel, QLabel#emaillabel, QLabel#newpasslab, QLabel#codelabel {
+    min-width: 80px;
+    color: #343a40;
+    font-weight: 600;
+}
+
+/* 输入框样式 */
+QLineEdit {
+    border: 2px solid #ced4da;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #495057;
+    selection-background-color: #007bff;
+    selection-color: white;
+}
+
+QLineEdit:focus {
+    border-color: #007bff;
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+QLineEdit:hover {
+    border-color: #adb5bd;
+}
+
+/* 获取验证码按钮 */
+QPushButton#getcodebtn {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #17a2b8, stop:1 #138496);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 60px;
+}
+
+QPushButton#getcodebtn:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #20c997, stop:1 #1e7e34);
+}
+
+QPushButton#getcodebtn:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #138496, stop:1 #0f6674);
+}
+
+QPushButton#getcodebtn:disabled {
+    background-color: #6c757d;
+    color: #adb5bd;
+}
+
+/* 确认按钮 */
+QPushButton#confirmbtn {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #28a745, stop:1 #1e7e34);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    min-width: 120px;
+}
+
+QPushButton#confirmbtn:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #34ce57, stop:1 #28a745);
+    transform: translateY(-1px);
+}
+
+QPushButton#confirmbtn:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #1e7e34, stop:1 #155724);
+}
+
+/* 返回按钮 */
+QPushButton#returnbtn {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #6c757d, stop:1 #545b62);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    min-width: 120px;
+}
+
+QPushButton#pushButton_2:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #828a91, stop:1 #6c757d);
+    transform: translateY(-1px);
+}
+
+QPushButton#pushButton_2:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #545b62, stop:1 #3a4145);
+}
+
+/* 通用按钮样式 */
+QPushButton {
+    border: none;
+    border-radius: 6px;
+    font-family: "Microsoft YaHei", "Arial", sans-serif;
+    outline: none;
+}
+
+QPushButton:focus {
+    outline: none;
+}
+
+/* 容器widget样式 */
+QWidget#widget {
+    background-color: transparent;
+}
+
+/* 布局间距调整 */
+QVBoxLayout {
+    spacing: 15px;
+}
+
+QHBoxLayout {
+    spacing: 10px;
+}
+
+
+
+/* 验证码输入框样式 */
+QLineEdit#codeedit {
+    border: 2px solid #20c997;
+}
+
+QLineEdit#codeedit:focus {
+    border-color: #20c997;
+    box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.25);
+}
+
+/* 滚动条美化（如果需要） */
+QScrollBar:vertical {
+    background: #f1f3f4;
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background: #c1c8cd;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #a8b2b9;
+}
+
+/* 工具提示样式 */
+QToolTip {
+    background-color: #343a40;
+    color: white;
+    border: 1px solid #495057;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+#errtip[state='normal']{
+   color: green;
+}
+
+#errtip[state='err']{
+   color: red;
+}
