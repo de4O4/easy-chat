@@ -5,6 +5,7 @@
 #include "logindialog.h"
 #include "registerdialog.h"
 #include "resetdialog.h"
+#include "chatdialog.h"
 /******************************************************************************
  *
  * @file       mainwindow.h
@@ -34,11 +35,12 @@ private slots:
     void SlotSwitchLogin();
     void SlotSwitchReset();             //切换至重置界面
     void SlotSwtichLogin2();            //从重置界面转为登录界面的槽函数
-
+    void SlotSwitchChat();
 private:
     Ui::MainWindow *ui;
     loginDialog *login_dlg;
     registerDialog *regis_dlg;
     ResetDialog* reset_dlg;
+    ChatDialog* chat_dlg;
 };
 #endif // MAINWINDOW_H

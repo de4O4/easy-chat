@@ -78,6 +78,7 @@ void CSession::Send(std::string msg, short msgid)
 		return; // already in sending process	
 	}
 	auto& msgnode = _send_que.front();			//从发送队列取出头部消息进行发送
+	std::cout << "开始发送数据！" << std::endl;
 	boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
 		std::bind(&CSession::HandlerWrite, this, std::placeholders::_1, SharedSelf()));
 }
@@ -138,7 +139,7 @@ void CSession::AsyncReadHead(int total_len)
 				return;
 			}
 			self->_recv_head_node->clear();
-			memcpy(self->_recv_head_node->_data, self->_data, HEAD_TOTAL_LEN);
+			memcpy(self->_recv_head_node->_data, self->_data, bytes_to_transfered);
 			short msg_id = 0;
 			memcpy(&msg_id, self->_recv_head_node->_data, HEAD_ID_LEN);
 			msg_id = boost::asio::detail::socket_ops::network_to_host_short(msg_id);	//获得主机字节序的消息ID
@@ -183,8 +184,9 @@ void CSession::asyncReadLen(std::size_t read_len, std::size_t total_len, std::fu
 				hander(ec, bytes_to_transfered);		//出现错误调用回调函数
 				return;
 			}
-			if (read_len + bytes_to_transfered > total_len) {
+			if (read_len + bytes_to_transfered >= total_len) {
 				hander(ec, read_len + bytes_to_transfered);		//读取长度超过总长度，调用回调函数
+				return;
 			}
 			self->asyncReadLen(read_len + bytes_to_transfered, total_len, hander);  //未出现错误，读取长度不足，继续读取
 		});
@@ -192,6 +194,27 @@ void CSession::asyncReadLen(std::size_t read_len, std::size_t total_len, std::fu
 
 void CSession::HandlerWrite(const boost::system::error_code& error, std::shared_ptr<CSession> shared_self)
 {
+	try {
+		auto self = shared_from_this();
+		if (!error) {
+			std::lock_guard<std::mutex> lock(_send_lock);
+			std::cout << "send data " << _send_que.front()->_data+ HEAD_TOTAL_LEN<< std::endl;
+			_send_que.pop();
+			if (!_send_que.empty()) {
+				auto& msgnode = _send_que.front();
+				boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+					std::bind(&CSession::HandlerWrite, this, std::placeholders::_1, shared_self));
+			}
+		}
+		else {
+			std::cout << "handle write failed, error is " << error.what() << std::endl;
+			Close();
+			//DealExceptionSession();
+		}
+	}
+	catch (std::exception& e) {
+		std::cerr << "Exception code : " << e.what() << std::endl;
+	}
 }
 
 LogicNode::LogicNode(std::shared_ptr<CSession> session, std::shared_ptr<RecvNode> recvnode):_session(session) , _recvnode(recvnode)

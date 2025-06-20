@@ -81,5 +81,22 @@ enum MSG_IDS {
 };
 
 
+
+// Defer类
+class Defer {
+public:
+	// 接受一个lambda表达式或者函数指针
+	Defer(std::function<void()> func) : func_(func) {}
+
+	// 析构函数中执行传入的函数
+	~Defer() {
+		func_();
+	}
+
+private:
+	std::function<void()> func_;
+};
+
+
 //class ConfigMgr;
 //extern ConfigMgr gCfgMgr;

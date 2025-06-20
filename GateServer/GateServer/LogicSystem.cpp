@@ -260,8 +260,8 @@ LogicSystem::LogicSystem()
 		root["error"] = 0;
 		root["user"] = userinfo.name;
 		root["uid"] = userinfo.uid;
-		root["token"] = reply.token();
-		root["host"] = reply.host();
+		root["token"] = reply.token();		//状态服务器生成的token
+		root["host"] = reply.host();		//状态服务器获得的可用的聊天服务器ip
 		root["port"] = reply.port();
 		std::string jsonstr = root.toStyledString();
 		beast::ostream(connection->_response.body()) << jsonstr;

@@ -15,6 +15,7 @@ loginDialog::loginDialog(QWidget *parent)
     connect(this , &loginDialog::sig_connect_tcp , TcpMgr::getintance().get() , &TcpMgr::slot_tcp_connect);
     connect(TcpMgr::getintance().get() , &TcpMgr::sig_conn_success , this , &loginDialog::slot_tcp_con_finish);
     ui->passedit->setEchoMode(QLineEdit::Password);
+    connect(TcpMgr::getintance().get(), &TcpMgr::sig_login_failed, this, &loginDialog::slot_login_failed);
 }
 
 loginDialog::~loginDialog()
@@ -121,11 +122,21 @@ void loginDialog::slot_tcp_con_finish(bool bsuccess)                //聊天服�
         jsonobj["token"] = _token;
         QJsonDocument doc(jsonobj);     //将qjsonobj类型先转换为qjsondocument类型
         QString jsonstr = doc.toJson(QJsonDocument::Indented);      //在将qjsonducument类型转为qstring类型
-        emit TcpMgr::getintance()->sig_send_data(ReqType::ID_CHAT_LOGIN , jsonstr);
+        emit TcpMgr::getintance()->sig_send_data(ReqType::ID_CHAT_LOGIN , jsonstr);     //向聊天服务器发送用户id与token
 
     }else{
         showTip(tr("网络错误！") , false);
     }
+}
+
+void loginDialog::slot_login_failed(int err)
+{
+
+
+    QString result = QString("登录失败, err is %1").arg(err);
+    showTip(result,false);
+    //enableBtn(true);
+
 }
 
 void loginDialog::on_loginbutton_clicked()

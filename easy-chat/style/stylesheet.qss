@@ -370,3 +370,22 @@ QToolTip {
 #errtip[state='err']{
    color: red;
 }
+
+
+#side_bar{
+  background-color:rgb(46,46,46);
+}
+
+
+#add_btn[state='normal']{
+    border-image: url(:/res/add_friend_normal.png);
+}
+
+#add_btn[state='hover']{
+    border-image: url(:/res/add_friend_hover.png);
+
+}
+
+#add_btn[state='press']{
+    border-image: url(:/res/add_friend_hover.png);
+}

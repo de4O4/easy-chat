@@ -9,6 +9,7 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <json/value.h>
+#include "data.h"
 
 class CServer;
 typedef  std::function<void(std::shared_ptr<CSession>, const short& msg_id, const std::string& msg_data)> FunCallBack;
@@ -28,6 +29,7 @@ private:
 	std::mutex _mutex;
 	std::condition_variable _consume;
 	bool _b_stop;
+	std::map<int, std::shared_ptr<UserInfo >> _users;
 	std::map<short, FunCallBack> _fun_callbacks;
 	std::shared_ptr<CServer> _p_server;
 };

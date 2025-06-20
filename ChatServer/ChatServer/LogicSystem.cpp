@@ -1,4 +1,6 @@
 #include "LogicSystem.h"
+#include "StatusGrpcClient.h"
+#include "UserMgr.h"
 
 LogicSystem::~LogicSystem()
 {
@@ -69,7 +71,19 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short& m
 	Json::Reader reader;
 	Json::Value root;
 	reader.parse(msg_data, root);
-	std::cout << "user login id is :" << root["id"].asInt() << "user token is :" << root["token"].asString() << std::endl;
-	std::string return_str = root.toStyledString();
-	session->Send(return_str, msg_id);
+	std::cout << "user login id is :" << root["uid"].asInt() << "user token is :" << root["token"].asString() << std::endl;
+	auto uid = root["uid"].asInt();
+	auto rsp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());		//向状态服务器验证用户所提交的id和token是否正确
+	Json::Value rvalue;
+	Defer defer([this, &rvalue, session]() {
+		std::string return_str = rvalue.toStyledString();
+		session->Send(return_str, MSG_CHAT_LOGIN_RSP);
+		});
+	rvalue["error"] = rsp.error();
+	if (rsp.error() != ErrorCodes::Success) {
+		return;
+	}
+	rvalue["uid"] = uid;
+	rvalue["token"] = rsp.token();
+	//rvalue["name"] = user_info->name;
 }

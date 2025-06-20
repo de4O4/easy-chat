@@ -154,4 +154,44 @@ bool MysqlDao::CheckPass(const std::string& email, const std::string& pass, User
 	return false;
 }
 
+std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid)
+{
+	auto con = _pool->getConnection();
+	if (con == nullptr) {
+		return nullptr;
+	}
+
+	Defer defer([this, &con]() {
+		_pool->ReturnConnection(std::move(con));
+		});
+	try
+	{
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement("SELECT * FROM user WHERE uid = ?"));
+		pstmt->setInt(1, uid);
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		std::shared_ptr<UserInfo> user_ptr = nullptr;
+		while (res->next()) {
+			user_ptr.reset(new UserInfo);
+			user_ptr->pwd = res->getString("pwd");
+			user_ptr->email = res->getString("email");
+			user_ptr->name = res->getString("name");
+		//	user_ptr->nick = res->getString("nick");
+		//	user_ptr->desc = res->getString("desc");
+		//	user_ptr->sex = res->getInt("sex");
+		//	user_ptr->icon = res->getString("icon");
+			user_ptr->uid = uid;
+			break;
+		}
+		return user_ptr;
+	}
+	catch (sql::SQLException& e)
+	{
+		_pool->ReturnConnection(std::move(con));
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return nullptr;
+	}
+}
+
 

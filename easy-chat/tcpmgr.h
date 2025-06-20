@@ -4,7 +4,7 @@
 #include <QAbstractSocket>
 #include <QTcpSocket>
 #include "singleton.h"
-
+#include <QMap>
 
 
 class TcpMgr:public QObject,public::SingteTon<TcpMgr>,public std::enable_shared_from_this<TcpMgr>
@@ -21,9 +21,14 @@ private:
     QByteArray _buffer;
     quint16 _message_id;
     quint16 _message_len;
+    void handleMsg(ReqType id, int len, QByteArray data);
+    void initHandlers();
+    QMap<ReqType, std::function<void(ReqType id, int len, QByteArray data)>> _handlers;
 signals:
     void sig_conn_success(bool bsueccess);
     void sig_send_data(ReqType reqid, QString data);
+    void sig_login_failed(int err);
+    void sig_swich_chatdlg();
 public slots:
     void slot_tcp_connect(ServerInfo si);
     void slot_send_data(ReqType reqid, QString data);

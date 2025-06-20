@@ -53,7 +53,8 @@ enum ErrorCodes {
 };
 
 #define CODEPREFIX "code_"
-
+#define USERIPPREFIX  "uip_"
+#define USERTOKENPREFIX  "utoken_"
 
 
 //class ConfigMgr;

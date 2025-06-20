@@ -24,3 +24,7 @@ bool MysqlMgr::UpdatePass(const std::string& name, const std::string& pass) {
 bool MysqlMgr::CheckPass(const std::string& email, const std::string& pass, UserInfo& userinfo) {
 	return _dao.CheckPass(email, pass, userinfo);
 }
+
+std::shared_ptr<UserInfo> MysqlMgr::GetUser(int uid) {
+	return _dao.GetUser(uid);
+}
