@@ -54,7 +54,8 @@ template <> constexpr inline auto loginDialog::qt_create_metaobjectdata<qt_meta_
         "ErrorCodes",
         "err",
         "slot_tcp_con_finish",
-        "bsuccess"
+        "bsuccess",
+        "slot_login_failed"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -77,6 +78,10 @@ template <> constexpr inline auto loginDialog::qt_create_metaobjectdata<qt_meta_
         // Slot 'slot_tcp_con_finish'
         QtMocHelpers::SlotData<void(bool)>(14, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::Bool, 15 },
+        }}),
+        // Slot 'slot_login_failed'
+        QtMocHelpers::SlotData<void(int)>(16, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 13 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -108,6 +113,7 @@ void loginDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         case 4: _t->slot_forget_pwd(); break;
         case 5: _t->slot_login_mod_finish((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<ErrorCodes>>(_a[3]))); break;
         case 6: _t->slot_tcp_con_finish((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 7: _t->slot_login_failed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         default: ;
         }
     }
@@ -140,14 +146,14 @@ int loginDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 8;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 7)
+        if (_id < 8)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 7;
+        _id -= 8;
     }
     return _id;
 }

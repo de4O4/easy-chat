@@ -1,6 +1,6 @@
 #include <windows.h>
 
-IDI_ICON1	ICON	"D:\\github\\qt\\easy-chat\\chat.ico"
+IDI_ICON1	ICON	"D:\\github\\easy-chat\\easy-chat\\chat.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION 0,0,0,0

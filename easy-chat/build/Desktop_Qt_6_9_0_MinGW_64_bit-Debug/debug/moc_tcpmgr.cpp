@@ -47,6 +47,9 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
         "ReqType",
         "reqid",
         "data",
+        "sig_login_failed",
+        "err",
+        "sig_swich_chatdlg",
         "slot_tcp_connect",
         "ServerInfo",
         "si",
@@ -62,12 +65,18 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
         QtMocHelpers::SignalData<void(ReqType, QString)>(4, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 5, 6 }, { QMetaType::QString, 7 },
         }}),
+        // Signal 'sig_login_failed'
+        QtMocHelpers::SignalData<void(int)>(8, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 9 },
+        }}),
+        // Signal 'sig_swich_chatdlg'
+        QtMocHelpers::SignalData<void()>(10, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'slot_tcp_connect'
-        QtMocHelpers::SlotData<void(ServerInfo)>(8, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 9, 10 },
+        QtMocHelpers::SlotData<void(ServerInfo)>(11, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 12, 13 },
         }}),
         // Slot 'slot_send_data'
-        QtMocHelpers::SlotData<void(ReqType, QString)>(11, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(ReqType, QString)>(14, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 5, 6 }, { QMetaType::QString, 7 },
         }}),
     };
@@ -95,8 +104,10 @@ void TcpMgr::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         switch (_id) {
         case 0: _t->sig_conn_success((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
         case 1: _t->sig_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 2: _t->slot_tcp_connect((*reinterpret_cast< std::add_pointer_t<ServerInfo>>(_a[1]))); break;
-        case 3: _t->slot_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 2: _t->sig_login_failed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 3: _t->sig_swich_chatdlg(); break;
+        case 4: _t->slot_tcp_connect((*reinterpret_cast< std::add_pointer_t<ServerInfo>>(_a[1]))); break;
+        case 5: _t->slot_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         default: ;
         }
     }
@@ -104,6 +115,10 @@ void TcpMgr::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(bool )>(_a, &TcpMgr::sig_conn_success, 0))
             return;
         if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(ReqType , QString )>(_a, &TcpMgr::sig_send_data, 1))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(int )>(_a, &TcpMgr::sig_login_failed, 2))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)()>(_a, &TcpMgr::sig_swich_chatdlg, 3))
             return;
     }
 }
@@ -131,14 +146,14 @@ int TcpMgr::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 6;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 6)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 4;
+        _id -= 6;
     }
     return _id;
 }
@@ -153,5 +168,17 @@ void TcpMgr::sig_conn_success(bool _t1)
 void TcpMgr::sig_send_data(ReqType _t1, QString _t2)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
+}
+
+// SIGNAL 2
+void TcpMgr::sig_login_failed(int _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 2, nullptr, _t1);
+}
+
+// SIGNAL 3
+void TcpMgr::sig_swich_chatdlg()
+{
+    QMetaObject::activate(this, &staticMetaObject, 3, nullptr);
 }
 QT_WARNING_POP
