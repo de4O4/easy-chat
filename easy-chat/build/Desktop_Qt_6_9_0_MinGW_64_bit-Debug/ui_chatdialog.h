@@ -23,6 +23,8 @@
 #include <chatuserlist.h>
 #include <clickedbtn.h>
 #include <customizeedit.h>
+#include <searchlist.h>
+#include <statewidget.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -35,8 +37,8 @@ public:
     QWidget *widget;
     QVBoxLayout *verticalLayout_2;
     QLabel *side_head_lb;
-    QLabel *side_chat_lb;
-    QLabel *side_contact_lb;
+    StateWidget *side_contact_lb;
+    StateWidget *side_chat_lb;
     QSpacerItem *verticalSpacer;
     QWidget *chat_user_wid;
     QVBoxLayout *verticalLayout_3;
@@ -46,7 +48,7 @@ public:
     QSpacerItem *horizontalSpacer;
     ClickedBtn *add_btn;
     ChatUserList *chatuser_list;
-    QListWidget *search_list;
+    SearchList *search_list;
     QListWidget *con_user_list;
     QStackedWidget *stackedWidget;
     ChatPage *chat_page;
@@ -56,7 +58,7 @@ public:
     {
         if (ChatDialog->objectName().isEmpty())
             ChatDialog->setObjectName("ChatDialog");
-        ChatDialog->resize(1050, 900);
+        ChatDialog->resize(1060, 836);
         horizontalLayout = new QHBoxLayout(ChatDialog);
         horizontalLayout->setSpacing(0);
         horizontalLayout->setObjectName("horizontalLayout");
@@ -66,31 +68,38 @@ public:
         side_bar->setMinimumSize(QSize(55, 0));
         side_bar->setMaximumSize(QSize(55, 16777215));
         verticalLayout = new QVBoxLayout(side_bar);
+        verticalLayout->setSpacing(2);
         verticalLayout->setObjectName("verticalLayout");
+        verticalLayout->setContentsMargins(0, 10, 0, 0);
         widget = new QWidget(side_bar);
         widget->setObjectName("widget");
         verticalLayout_2 = new QVBoxLayout(widget);
+        verticalLayout_2->setSpacing(10);
         verticalLayout_2->setObjectName("verticalLayout_2");
+        verticalLayout_2->setContentsMargins(10, 0, 10, 0);
         side_head_lb = new QLabel(widget);
         side_head_lb->setObjectName("side_head_lb");
-        side_head_lb->setMinimumSize(QSize(0, 40));
-        side_head_lb->setMaximumSize(QSize(16777215, 40));
+        side_head_lb->setMinimumSize(QSize(45, 45));
+        side_head_lb->setMaximumSize(QSize(45, 45));
+        side_head_lb->setLayoutDirection(Qt::LayoutDirection::LeftToRight);
+        side_head_lb->setAlignment(Qt::AlignmentFlag::AlignCenter);
 
         verticalLayout_2->addWidget(side_head_lb);
 
-        side_chat_lb = new QLabel(widget);
-        side_chat_lb->setObjectName("side_chat_lb");
-        side_chat_lb->setMinimumSize(QSize(0, 40));
-        side_chat_lb->setMaximumSize(QSize(16777215, 40));
-
-        verticalLayout_2->addWidget(side_chat_lb);
-
-        side_contact_lb = new QLabel(widget);
+        side_contact_lb = new StateWidget(widget);
         side_contact_lb->setObjectName("side_contact_lb");
-        side_contact_lb->setMinimumSize(QSize(0, 40));
-        side_contact_lb->setMaximumSize(QSize(16777215, 40));
+        side_contact_lb->setMinimumSize(QSize(30, 30));
+        side_contact_lb->setMaximumSize(QSize(30, 30));
 
         verticalLayout_2->addWidget(side_contact_lb);
+
+        side_chat_lb = new StateWidget(widget);
+        side_chat_lb->setObjectName("side_chat_lb");
+        side_chat_lb->setEnabled(true);
+        side_chat_lb->setMinimumSize(QSize(30, 30));
+        side_chat_lb->setMaximumSize(QSize(30, 30));
+
+        verticalLayout_2->addWidget(side_chat_lb);
 
 
         verticalLayout->addWidget(widget);
@@ -144,7 +153,7 @@ public:
 
         verticalLayout_3->addWidget(chatuser_list);
 
-        search_list = new QListWidget(chat_user_wid);
+        search_list = new SearchList(chat_user_wid);
         search_list->setObjectName("search_list");
 
         verticalLayout_3->addWidget(search_list);
@@ -180,9 +189,7 @@ public:
     void retranslateUi(QDialog *ChatDialog)
     {
         ChatDialog->setWindowTitle(QCoreApplication::translate("ChatDialog", "Dialog", nullptr));
-        side_head_lb->setText(QCoreApplication::translate("ChatDialog", "TextLabel", nullptr));
-        side_chat_lb->setText(QCoreApplication::translate("ChatDialog", "TextLabel", nullptr));
-        side_contact_lb->setText(QCoreApplication::translate("ChatDialog", "TextLabel", nullptr));
+        side_head_lb->setText(QString());
         add_btn->setText(QString());
     } // retranslateUi
 

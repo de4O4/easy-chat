@@ -5,7 +5,7 @@
 #include <QTcpSocket>
 #include "singleton.h"
 #include <QMap>
-
+#include "userdata.h"
 
 class TcpMgr:public QObject,public::SingteTon<TcpMgr>,public std::enable_shared_from_this<TcpMgr>
 {
@@ -29,6 +29,7 @@ signals:
     void sig_send_data(ReqType reqid, QString data);
     void sig_login_failed(int err);
     void sig_swich_chatdlg();
+    void sig_user_search(std::shared_ptr<SearchInfo> si);
 public slots:
     void slot_tcp_connect(ServerInfo si);
     void slot_send_data(ReqType reqid, QString data);

@@ -38,6 +38,25 @@ ChatDialog::ChatDialog(QWidget *parent)
     ShowSearch(false);
     addChatUserList();
     connect(ui->chatuser_list , &ChatUserList::sig_loading_chat_user , this , &ChatDialog::slot_loading_chat_user);
+
+    QPixmap pixmap(":/res/head_4.jpg");
+    ui->side_head_lb->setPixmap(pixmap);
+    QPixmap scalpixmap = pixmap.scaled(ui->side_head_lb->size() , Qt::KeepAspectRatio);
+    ui->side_head_lb->setPixmap(scalpixmap);
+    ui->side_head_lb->setScaledContents(true);      //自适应缩放
+
+    ui->side_chat_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
+
+    ui->side_contact_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
+    ui->side_chat_lb->setProperty("state","normal");
+
+    connect(ui->side_chat_lb , &StateWidget::clicked , this , &ChatDialog::slot_side_chat);
+    connect(ui->side_contact_lb , &StateWidget::clicked , this , &ChatDialog::slot_side_contact);
+    connect(ui->search_edit , &QLineEdit::textChanged , this , &ChatDialog::slot_text_change);
+
+    AddLBGroup(ui->side_chat_lb);
+    AddLBGroup(ui->side_contact_lb);
+   // ui->widget.set
 }
 
 ChatDialog::~ChatDialog()
@@ -107,6 +126,21 @@ void ChatDialog::addChatUserList()
     }
 }
 
+void ChatDialog::ClearLabelState(StateWidget *lb)
+{
+    for(auto& ele : _lb_list){          //只将被点击的标签置为选中状态，将其他标签置为正常
+        if(ele == lb){
+            continue;
+        }
+        ele->ClearState();
+    }
+}
+
+void ChatDialog::AddLBGroup(StateWidget *lb)
+{
+    _lb_list.push_back(lb);
+}
+
 void ChatDialog::slot_loading_chat_user()
 {
     if(_b_loading){
@@ -130,3 +164,29 @@ void ChatDialog::slot_loading_chat_user()
         _b_loading = false;
     });
 }
+
+void ChatDialog::slot_side_chat()
+{
+    qDebug()<<"recvive Clicked";
+    ClearLabelState(ui->side_chat_lb);
+    ui->stackedWidget->setCurrentWidget(ui->chat_page);
+    _state = ChatUIMode::ChatMode;
+    ShowSearch(false);
+}
+
+void ChatDialog::slot_side_contact()
+{
+    qDebug()<<"change contact";
+    ClearLabelState(ui->side_contact_lb);
+    ui->stackedWidget->setCurrentWidget(ui->friend_apply_page);
+    _state = ChatUIMode::ContactMode;
+    ShowSearch(false);
+}
+
+void ChatDialog::slot_text_change(const QString &str)
+{
+    if(!str.isEmpty()){
+        ShowSearch(true);
+    }
+}
+

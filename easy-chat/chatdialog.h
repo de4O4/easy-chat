@@ -4,7 +4,7 @@
 #include "global.h"
 #include <QDialog>
 #include <QListWidgetItem>
-
+#include "statewidget.h"
 
 namespace Ui {
 class ChatDialog;
@@ -21,14 +21,19 @@ public:
     ChatUIMode _mode;
     ChatUIMode _state;
     bool _b_loading;
+    QList<StateWidget*> _lb_list;
     void addChatUserList();
-
+    void ClearLabelState(StateWidget *lb);
+    void AddLBGroup(StateWidget *lb);
 private:
     Ui::ChatDialog *ui;
     QListWidgetItem* _loadingitem;
 
 public slots:
     void slot_loading_chat_user();
+    void slot_side_chat();
+    void slot_side_contact();
+    void slot_text_change(const QString& str);
 };
 
 #endif // CHATDIALOG_H
