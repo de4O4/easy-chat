@@ -42,12 +42,15 @@ template <> constexpr inline auto ClickedLabel::qt_create_metaobjectdata<qt_meta
     QtMocHelpers::StringRefStorage qt_stringData {
         "ClickedLabel",
         "clicked",
-        ""
+        "",
+        "ClickLbState"
     };
 
     QtMocHelpers::UintData qt_methods {
         // Signal 'clicked'
-        QtMocHelpers::SignalData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void(QString, ClickLbState)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 2 }, { 0x80000000 | 3, 2 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -71,12 +74,12 @@ void ClickedLabel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
     auto *_t = static_cast<ClickedLabel *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->clicked(); break;
+        case 0: _t->clicked((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<ClickLbState>>(_a[2]))); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
-        if (QtMocHelpers::indexOfMethod<void (ClickedLabel::*)()>(_a, &ClickedLabel::clicked, 0))
+        if (QtMocHelpers::indexOfMethod<void (ClickedLabel::*)(QString , ClickLbState )>(_a, &ClickedLabel::clicked, 0))
             return;
     }
 }
@@ -113,8 +116,8 @@ int ClickedLabel::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void ClickedLabel::clicked()
+void ClickedLabel::clicked(QString _t1, ClickLbState _t2)
 {
-    QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1, _t2);
 }
 QT_WARNING_POP

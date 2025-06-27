@@ -25,10 +25,12 @@ public:
     void addChatUserList();
     void ClearLabelState(StateWidget *lb);
     void AddLBGroup(StateWidget *lb);
+    void handleGlobalMousePress(QMouseEvent* event);
 private:
     Ui::ChatDialog *ui;
     QListWidgetItem* _loadingitem;
-
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 public slots:
     void slot_loading_chat_user();
     void slot_side_chat();

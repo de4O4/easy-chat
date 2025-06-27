@@ -14,6 +14,7 @@ public:
     void SetState(QString normal="", QString hover="", QString press="",
                   QString select="", QString select_hover="", QString select_press="");
     ClickLbState GetCurState();
+    bool SetCurState(ClickLbState state);
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
 private:
     QString _normal;
@@ -26,7 +27,7 @@ private:
 
     ClickLbState _curstate;
 signals:
-    void clicked(void);
+    void clicked(QString, ClickLbState);
 
 };
 

@@ -8,6 +8,8 @@
 #include "loadingdlg.h"
 #include <QListWidget>
 #include <QTimer>
+#include <QMouseEvent>
+
 
 ChatDialog::ChatDialog(QWidget *parent)
     : QDialog(parent)
@@ -56,7 +58,8 @@ ChatDialog::ChatDialog(QWidget *parent)
 
     AddLBGroup(ui->side_chat_lb);
     AddLBGroup(ui->side_contact_lb);
-   // ui->widget.set
+    this->installEventFilter(this);
+    ui->side_chat_lb->SetSelected(true);
 }
 
 ChatDialog::~ChatDialog()
@@ -139,6 +142,27 @@ void ChatDialog::ClearLabelState(StateWidget *lb)
 void ChatDialog::AddLBGroup(StateWidget *lb)
 {
     _lb_list.push_back(lb);
+}
+
+void ChatDialog::handleGlobalMousePress(QMouseEvent *event)
+{
+    if(_mode != ChatUIMode::SearchMode){
+        return;
+    }
+    QPoint posInSearchList = (ui->search_list->mapFromGlobal(event->globalPosition())).toPoint();       // 将鼠标点击位置转换为搜索列表坐标系中的位置
+    if(!ui->search_list->rect().contains(posInSearchList)){     //点击坐标不在搜索列表中
+        ui->search_edit->clear();
+        ShowSearch(false);
+    }
+}
+
+bool ChatDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if(event->type() == QEvent::MouseButtonPress){      //chat界面出现点击事件
+        QMouseEvent* mouseevent = static_cast<QMouseEvent*>(event);
+        handleGlobalMousePress(mouseevent);
+    }
+    return QDialog::eventFilter(watched , event);
 }
 
 void ChatDialog::slot_loading_chat_user()
