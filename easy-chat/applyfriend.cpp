@@ -13,13 +13,14 @@ ApplyFriend::ApplyFriend(QWidget *parent)
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     this->setObjectName("ApplyFrined");
     this->setModal(true);
+    qDebug()<<"apply friend success!";
     ui->name_ed->setPlaceholderText(tr("渡鸦"));
     ui->lb_ed->setPlaceholderText("搜索，添加标签 ");
     ui->back_ed->setPlaceholderText("燃烧的胸毛");
 
     ui->lb_ed->setMaxLength(21);
     ui->lb_ed->move(2 ,2);
-    ui->lb_ed->setFixedHeight(20);
+    ui->lb_ed->setFixedHeight(35);
     ui->lb_ed->setMaxLength(10);
     ui->input_wid->hide();
 
@@ -70,9 +71,15 @@ void ApplyFriend::InitTipLbs()
                 delete lb;
                 return;
             }
+            _tip_cur_point.setX(tip_offset);
+            _tip_cur_point.setY(_tip_cur_point.y() + textheight + 15);
         }
-        _tip_cur_point.setX(tip_offset);
-        _tip_cur_point.setY(_tip_cur_point.y() + textheight + 15);
+        auto next_point = _tip_cur_point;
+
+        AddTipLbs(lb, _tip_cur_point,next_point, textwidth, textheight);
+
+        _tip_cur_point = next_point;
+
     }
 }
 
@@ -131,7 +138,7 @@ void ApplyFriend::resetLabels()     //重排好友标签编辑栏的标签
     }
 }
 
-void ApplyFriend::addLabel(QString name)            //添加自定义的好友标签
+void ApplyFriend::addLabel(QString name)            //添加自定义的好友标签在输入框中
 {
     if(_friend_labels.find(name) != _friend_labels.end()){      //已存在这个标签
         return;
@@ -148,6 +155,7 @@ void ApplyFriend::addLabel(QString name)            //添加自定义的好友�
     }
     temlabel->move(_label_point);
     temlabel->show();
+    temlabel->setFixedHeight(33);
     _friend_labels[temlabel->Text()] = temlabel;     //将自定义标签存储
     _friend_label_keys.push_back(temlabel->Text());
     connect(temlabel , &FriendLabel::sig_close , this , &ApplyFriend::SLotRemoveFriendLabel);
@@ -159,7 +167,7 @@ void ApplyFriend::addLabel(QString name)            //添加自定义的好友�
     }
     ui->lb_ed->clear();
     if(ui->gridWidget->height() < _label_point.y() + temlabel->height() + 2){
-        ui->gridWidget->setFixedHeight(_label_point.y() + temlabel->height()*2 + 2);        //重新调整容器的高度
+        ui->gridWidget->setFixedHeight(_label_point.y() + temlabel->height() + 15);        //重新调整容器的高度
     }
 }
 
@@ -255,37 +263,127 @@ void ApplyFriend::SlotLabelEnter()
     ui->scrollAreaWidgetContents->setFixedHeight(ui->scrollAreaWidgetContents->height() + diff_height);
 }
 
-void ApplyFriend::SLotRemoveFriendLabel(QString)
+void ApplyFriend::SLotRemoveFriendLabel(QString name)
 {
-
+    qDebug()<<"receive close signal ";
+    _label_point.setX(2);
+    _label_point.setY(6);
+    auto find_it = _friend_labels.find(name);
+    if(find_it == _friend_labels.end()){        //没找到标签
+        return;
+    }
+    auto find_key = _friend_label_keys.end();
+    for(auto it = _friend_label_keys.begin();it!=_friend_label_keys.end();it++){
+        if(*it == name){
+            find_key = it;
+            break;
+        }
+    }
+    if(find_key != _friend_label_keys.end()){
+        _friend_label_keys.erase(find_key);     //清楚标签内容
+    }
+    delete find_it.value();
+    _friend_labels.erase(find_it);      //从map中删除标签
+    resetLabels();
+    auto find_add = _add_labels.find(name);
+    if(find_add == _add_labels.end()){      //想要添加的标签不在已添加标签中
+        return;
+    }
+    find_add.value()->ResetNormalState();       //选中的标签变为正常状态
 }
 
-void ApplyFriend::SlotChangeFriendLabelByTip(QString, ClickLbState)
+void ApplyFriend::SlotChangeFriendLabelByTip(QString lbtext, ClickLbState state)        //点击标已有签添加或删除新联系人的标签
 {
-
+    auto find_it = _add_labels.find(lbtext);
+    if(find_it == _add_labels.end()){
+        return;
+    }
+    if(state == ClickLbState::Selected){
+        addLabel(lbtext);
+        return;
+    }
+    if(state == ClickLbState::Normal){
+        SLotRemoveFriendLabel(lbtext);
+        return;
+    }
 }
 
 void ApplyFriend::SlotLabelTextChange(const QString &text)
 {
-
+    if(text.isEmpty()){         //输入标签栏未有文字输入
+        ui->tip_lb->setText("");
+        ui->input_wid->hide();
+        return;
+    }
+    auto it = std::find(_tip_data.begin() , _tip_data.end() , text);        //寻找输入的标签是否已存在
+    if(it == _tip_data.end()){
+        auto new_text = add_prefix + text;;
+        ui->tip_lb->setText(new_text);
+        ui->input_wid->show();
+        return;
+    }
+    ui->tip_lb->setText(text);
+    ui->input_wid->show();
 }
 
 void ApplyFriend::SlotLabelEditFinished()
 {
-
+    ui->input_wid->hide();
 }
 
 void ApplyFriend::SlotAddFriendLabelByClickTip(QString text)
 {
+    int index = text.indexOf(add_prefix);
+    if(index != -1){
+        text = text.mid(index + add_prefix.length());      //截取后面的标签内容
+    }
+    addLabel(text);
+    auto find_it = std::find(_tip_data.begin() , _tip_data.end() , text);
+    if(find_it == _tip_data.end()){     //标签库中不存在则添加
+        _tip_data.push_back(text);
+    }
+    auto find_add = _add_labels.find(text);     //在已添加的标签中寻找
+    if(find_add != _add_labels.end()){
+        find_add.value()->SetCurState(ClickLbState::Selected);      //存在的标签则变为选中状态
+        return;
+    }
 
+    auto* lb = new ClickedLabel(ui->lb_list);
+    lb->SetState("normal", "hover", "pressed", "selected_normal",
+                 "selected_hover", "selected_pressed");
+    lb->setObjectName("tipslb");
+    lb->setText(text);
+    connect(lb , &ClickedLabel::clicked , this , &ApplyFriend::SlotChangeFriendLabelByTip);
+    qDebug()<<"lb_list width is "<<ui->lb_list->width();
+    qDebug()<<"_tip_cur_point x() is "<<_tip_cur_point.x();
+    QFontMetrics fontmetrics(lb->font());
+    int textwidth = fontmetrics.horizontalAdvance(lb->text());
+    int textheight = fontmetrics.height();
+    qDebug()<<"textwidth is "<<textwidth;
+    if(_tip_cur_point.x() + textwidth + tip_offset > ui->lb_list->width()){
+        _tip_cur_point.setX(5);
+        _tip_cur_point.setY(_tip_cur_point.y() + textheight + 15);
+    }
+    auto next_point = _tip_cur_point;
+    AddTipLbs(lb , _tip_cur_point , next_point , textwidth , textheight);
+    _tip_cur_point = next_point;
+
+    int diff_height = next_point.y() + textheight + tip_offset - ui->lb_list->height();
+    ui->lb_list->setFixedHeight(next_point.y() + textheight + tip_offset);
+    lb->SetCurState(ClickLbState::Selected);
+    ui->scrollAreaWidgetContents->setFixedHeight(ui->scrollAreaWidgetContents->height() + diff_height);
 }
 
 void ApplyFriend::SlotApplySure()
 {
-
+    qDebug()<<"slot apply sure called";
+    this->hide();
+    deleteLater();
 }
 
 void ApplyFriend::SlotApplyCancel()
 {
-
+    qDebug()<<"slot apply cancel";
+    this->hide();
+    deleteLater();
 }

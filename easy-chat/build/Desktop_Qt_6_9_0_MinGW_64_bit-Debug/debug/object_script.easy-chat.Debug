@@ -10,10 +10,13 @@ debug/chatview.o
 debug/clickedbtn.o
 debug/clickedlabel.o
 debug/clickedoncelabel.o
+debug/contactuserlist.o
+debug/conuseritem.o
 debug/customizeedit.o
 debug/findsuccessdlg.o
 debug/friendlabel.o
 debug/global.o
+debug/grouptipitem.o
 debug/httpmgr.o
 debug/listitembase.o
 debug/loadingdlg.o
@@ -44,9 +47,12 @@ debug/moc_chatview.o
 debug/moc_clickedbtn.o
 debug/moc_clickedlabel.o
 debug/moc_clickedoncelabel.o
+debug/moc_contactuserlist.o
+debug/moc_conuseritem.o
 debug/moc_customizeedit.o
 debug/moc_findsuccessdlg.o
 debug/moc_friendlabel.o
+debug/moc_grouptipitem.o
 debug/moc_httpmgr.o
 debug/moc_listitembase.o
 debug/moc_loadingdlg.o

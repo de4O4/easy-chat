@@ -26,13 +26,14 @@ public:
     QLabel *tip_lb;
     QWidget *close_wid;
     QVBoxLayout *verticalLayout;
-    ClickedLabel *clode_lb;
+    ClickedLabel *close_lb;
 
     void setupUi(QWidget *FriendLabel)
     {
         if (FriendLabel->objectName().isEmpty())
             FriendLabel->setObjectName("FriendLabel");
         FriendLabel->resize(469, 50);
+        FriendLabel->setMinimumSize(QSize(0, 35));
         FriendLabel->setMaximumSize(QSize(16777215, 50));
         horizontalLayout = new QHBoxLayout(FriendLabel);
         horizontalLayout->setSpacing(0);
@@ -40,6 +41,7 @@ public:
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
         tip_lb = new QLabel(FriendLabel);
         tip_lb->setObjectName("tip_lb");
+        tip_lb->setMinimumSize(QSize(0, 35));
 
         horizontalLayout->addWidget(tip_lb);
 
@@ -51,12 +53,12 @@ public:
         verticalLayout->setSpacing(0);
         verticalLayout->setObjectName("verticalLayout");
         verticalLayout->setContentsMargins(0, 0, 0, 0);
-        clode_lb = new ClickedLabel(close_wid);
-        clode_lb->setObjectName("clode_lb");
-        clode_lb->setMinimumSize(QSize(20, 20));
-        clode_lb->setMaximumSize(QSize(20, 20));
+        close_lb = new ClickedLabel(close_wid);
+        close_lb->setObjectName("close_lb");
+        close_lb->setMinimumSize(QSize(20, 20));
+        close_lb->setMaximumSize(QSize(20, 20));
 
-        verticalLayout->addWidget(clode_lb);
+        verticalLayout->addWidget(close_lb);
 
 
         horizontalLayout->addWidget(close_wid);
@@ -71,7 +73,7 @@ public:
     {
         FriendLabel->setWindowTitle(QCoreApplication::translate("FriendLabel", "Form", nullptr));
         tip_lb->setText(QString());
-        clode_lb->setText(QCoreApplication::translate("FriendLabel", "TextLabel", nullptr));
+        close_lb->setText(QString());
     } // retranslateUi
 
 };

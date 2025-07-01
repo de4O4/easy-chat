@@ -88,6 +88,9 @@ enum ListItemType{
     SearchUserItem, //搜索到的用户
     AddUserTipItem, //提示添加用户
     InvalidItem,  //不可点击条目
+    GROUP_TIP_ITEM, //分组提示条目
+    LINE_ITEM,  //分割线
+    APPLY_FRIEND_ITEM, //好友申请
 };
 
 
@@ -107,5 +110,30 @@ struct MsgInfo{
 const int  tip_offset = 5;
 //申请好友标签输入框最低长度
 const int MIN_APPLY_LABEL_ED_LEN = 40;
+const QString add_prefix = "添加标签 ";
+
+
+const std::vector<QString>  strs ={"hello world !",
+                             "nice to meet u",
+                             "New year，new life",
+                             "You have to love yourself",
+                             "My love is written in the wind ever since the whole world is you"};
+const std::vector<QString> heads = {
+    ":/res/head_1.jpg",
+    ":/res/head_2.jpg",
+    ":/res/head_3.jpg",
+    ":/res/head_4.jpg",
+    ":/res/head_5.jpg"
+};
+const std::vector<QString> names = {
+    "llfc",
+    "zack",
+    "golang",
+    "cpp",
+    "java",
+    "nodejs",
+    "python",
+    "rust"
+};
 
 #endif // GLOBAL_H

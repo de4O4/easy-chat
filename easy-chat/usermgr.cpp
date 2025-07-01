@@ -22,10 +22,10 @@ void UserMgr::SetToken(QString token)
 
 QString UserMgr::GetName()
 {
-    return _user_info->_name;
+    return _name;
 }
 
-UserMgr::UserMgr()
+UserMgr::UserMgr():_user_info(nullptr)
 {
 
 }

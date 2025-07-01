@@ -5,6 +5,7 @@
 #include <QDialog>
 #include <QPoint>
 #include <QMap>
+#include <vector>
 #include "friendlabel.h"
 
 namespace Ui {

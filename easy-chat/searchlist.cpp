@@ -87,28 +87,59 @@ void SearchList::addTipItem()           //添加小组件
 
 void SearchList::slot_item_clicked(QListWidgetItem *item)
 {
-    QWidget* widget = this->itemWidget(item);       //获取部件的widget对象
+    // QWidget* widget = this->itemWidget(item);       //获取部件的widget对象
+    // if(!widget){
+    //     qDebug()<<"slot item clicked is nullptr";
+    //     return;
+    // }
+    // ListItemBase* customitem = qobject_cast<ListItemBase *>(widget);
+    // if(!customitem){
+    //     qDebug()<< "slot item clicked widget is nullptr";
+    //     return;
+    // }
+    // auto itemtype = customitem->GetItemType();
+    // if(itemtype == ListItemType::AddUserTipItem){
+    //     _find_dlg = std::make_shared<FindSuccessDlg>(this);
+    //     auto si = std::make_shared<SearchInfo>(0 , "duya" , "duya" , "hello" , 0);
+    //     (std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg))->SetSearchInfo(si);
+    //     _find_dlg->show();
+    //     return;
+    // }
+    // // if(itemtype == ListItemType::InvalidItem){
+    // //     qDebug()<< "slot invalid item clicked ";
+    // //     return;
+    // // }
+    // CloseFindDlg();
+    QWidget *widget = this->itemWidget(item); //获取自定义widget对象
     if(!widget){
-        qDebug()<<"slot item clicked is nullptr";
-        return;
-    }
-    ListItemBase* customitem = qobject_cast<ListItemBase *>(widget);
-    if(!customitem){
         qDebug()<< "slot item clicked widget is nullptr";
         return;
     }
-    auto itemtype = customitem->GetItemType();
-    if(itemtype == ListItemType::AddUserTipItem){
+
+    // 对自定义widget进行操作， 将item 转化为基类ListItemBase
+    ListItemBase *customItem = qobject_cast<ListItemBase*>(widget);
+    if(!customItem){
+        qDebug()<< "slot item clicked widget is nullptr";
+        return;
+    }
+
+    auto itemType = customItem->GetItemType();
+    if(itemType == ListItemType::InvalidItem){
+        qDebug()<< "slot invalid item clicked ";
+        return;
+    }
+
+    if(itemType == ListItemType::AddUserTipItem){
+
+        //todo ...
         _find_dlg = std::make_shared<FindSuccessDlg>(this);
-        auto si = std::make_shared<SearchInfo>(0 , "duya" , "duya" , "hello" , 0);
+        auto si = std::make_shared<SearchInfo>(0,"llfc","llfc","hello , my friend!",0,"");
         (std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg))->SetSearchInfo(si);
         _find_dlg->show();
         return;
     }
-    if(itemtype == ListItemType::InvalidItem){
-        qDebug()<< "slot invalid item clicked ";
-        return;
-    }
+
+    //清楚弹出框
     CloseFindDlg();
 }
 
