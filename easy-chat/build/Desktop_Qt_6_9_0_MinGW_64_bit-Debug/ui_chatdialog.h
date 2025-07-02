@@ -18,6 +18,7 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include <applyfriendpage.h>
 #include <chatpage.h>
 #include <chatuserlist.h>
 #include <clickedbtn.h>
@@ -52,7 +53,7 @@ public:
     ContactUserList *con_user_list;
     QStackedWidget *stackedWidget;
     ChatPage *chat_page;
-    QWidget *friend_apply_page;
+    ApplyFriendPage *friend_apply_page;
 
     void setupUi(QDialog *ChatDialog)
     {
@@ -171,7 +172,7 @@ public:
         chat_page = new ChatPage();
         chat_page->setObjectName("chat_page");
         stackedWidget->addWidget(chat_page);
-        friend_apply_page = new QWidget();
+        friend_apply_page = new ApplyFriendPage();
         friend_apply_page->setObjectName("friend_apply_page");
         stackedWidget->addWidget(friend_apply_page);
 
