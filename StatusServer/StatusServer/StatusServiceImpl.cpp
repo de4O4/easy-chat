@@ -17,9 +17,8 @@ Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatSer
 {
     std::string prefix("easy-chat status server has received :  ");
     const auto& server = getChatServer();
-    reply->set_host(server.host);           //给客户端返回聊天服务器的地址
-    reply->set_port(server.port);  
-    std::cout << server.host << "   " << server.port << std::endl;
+    reply->set_host(server.host);
+    reply->set_port(server.port);
     reply->set_error(ErrorCodes::Success);
     reply->set_token(generate_unique_string());
     insertToken(request->uid(), reply->token());
@@ -29,13 +28,16 @@ Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatSer
 Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request, LoginRsp* reply) {
     auto uid = request->uid();
     auto token = request->token();
-    std::lock_guard<std::mutex> lock(_token_mtx);
-    auto it = _tokens.find(uid);
-    if (it == _tokens.end()) {
+   
+    std::string uid_str = std::to_string(uid);
+    std::string token_key = USERTOKENPREFIX + uid_str;
+    std::string token_value = "";
+    bool success = RedisMgr::GetInstance()->Get(token_key, token_value);
+    if (!success) {
         reply->set_error(ErrorCodes::UidInvalid);
         return Status::OK;
     }
-    if (it->second != token) {
+    if (token_value != token) {
         reply->set_error(ErrorCodes::TokenInvalid);
         return Status::OK;
     }
@@ -48,18 +50,47 @@ Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request,
 
 void StatusServiceImpl::insertToken(int uid, std::string token)
 {
-   // std::string uid_str = std::to_string(uid);
-    //std::string token_key = USERTOKENPREFIX + uid_str;
-    //RedisMgr::GetInstance()->Set(token_key, token);
-    std::lock_guard<std::mutex> lock(_token_mtx);
-    _tokens[uid] = token;
+    std::string uid_str = std::to_string(uid);
+    std::string token_key = USERTOKENPREFIX + uid_str;
+    RedisMgr::GetInstance()->Set(token_key, token);
+
 }
 
 ChatServer StatusServiceImpl::getChatServer()
 {
-    std::lock_guard<std::mutex> lock(_server_mtx);
-    auto minserver = _servers.begin()->second;
-    return minserver;
+    std::lock_guard<std::mutex> guard(_server_mtx);
+    auto minServer = _servers.begin()->second;
+    auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
+    if (count_str.empty()) {
+        //不存在则默认设置为最大
+        minServer.con_count = INT_MAX;
+    }
+    else {
+        minServer.con_count = std::stoi(count_str);
+    }
+
+
+    // 使用范围基于for循环
+    for (auto& server : _servers) {
+
+        if (server.second.name == minServer.name) {
+            continue;
+        }
+
+        auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+        if (count_str.empty()) {
+            server.second.con_count = INT_MAX;
+        }
+        else {
+            server.second.con_count = std::stoi(count_str);
+        }
+
+        if (server.second.con_count < minServer.con_count) {
+            minServer = server.second;
+        }
+    }
+
+    return minServer;
 }
 
 StatusServiceImpl::StatusServiceImpl()

@@ -52,9 +52,12 @@ enum ErrorCodes {
 	UidInvalid = 1011,  //uidÎÞÐ§
 };
 
-#define CODEPREFIX "code_"
 #define USERIPPREFIX  "uip_"
 #define USERTOKENPREFIX  "utoken_"
+#define IPCOUNTPREFIX  "ipcount_"
+#define USER_BASE_INFO "ubaseinfo_"
+#define LOGIN_COUNT  "logincount"
+#define NAME_INFO  "nameinfo_"
 
 
 //class ConfigMgr;

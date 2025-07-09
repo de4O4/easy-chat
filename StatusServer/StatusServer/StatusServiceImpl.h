@@ -48,11 +48,11 @@ public:
         LoginRsp* reply) override;
    // std::vector<ChatServer> _servers;
    // int _server_index;
-    std::map<int, std::string> _tokens;
-    std::mutex _token_mtx;
+    
 private:
     void insertToken(int uid, std::string token);
     ChatServer getChatServer();
     std::unordered_map<std::string, ChatServer> _servers;
     std::mutex _server_mtx;
+	std::mutex _token_mtx;
 };

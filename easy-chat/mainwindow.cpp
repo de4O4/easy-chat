@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     connect(TcpMgr::getintance().get() , &TcpMgr::sig_swich_chatdlg , this , &MainWindow::SlotSwitchChat);
-    emit TcpMgr::getintance()->sig_swich_chatdlg();
+    //emit TcpMgr::getintance()->sig_swich_chatdlg();
 }
 
 MainWindow::~MainWindow()
