@@ -5,8 +5,9 @@
 #include <QEvent>
 #include <QScrollBar>
 #include "findsuccessdlg.h"
-
-
+#include "customizeedit.h"
+#include "loadingdlg.h"
+#include "findfaildlg.h"
 
 SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr),_search_edit(nullptr),_send_pending(false)
 {
@@ -29,7 +30,7 @@ void SearchList::CloseFindDlg()
 
 void SearchList::SetSearchEdit(QWidget *edit)
 {
-
+    _search_edit = edit;
 }
 
 bool SearchList::eventFilter(QObject *watched, QEvent *event)
@@ -62,7 +63,16 @@ bool SearchList::eventFilter(QObject *watched, QEvent *event)
 
 void SearchList::waitPending(bool pending)
 {
-
+    if(pending){
+        _loadingDialog = new LoadingDlg(this);
+        _loadingDialog->setModal(true);
+        _loadingDialog->show();
+        _send_pending = pending;
+    }else{
+        _loadingDialog->hide();
+        _loadingDialog->deleteLater();
+        _send_pending = pending;
+    }
 }
 
 void SearchList::addTipItem()           //添加小组件
@@ -87,29 +97,7 @@ void SearchList::addTipItem()           //添加小组件
 
 void SearchList::slot_item_clicked(QListWidgetItem *item)
 {
-    // QWidget* widget = this->itemWidget(item);       //获取部件的widget对象
-    // if(!widget){
-    //     qDebug()<<"slot item clicked is nullptr";
-    //     return;
-    // }
-    // ListItemBase* customitem = qobject_cast<ListItemBase *>(widget);
-    // if(!customitem){
-    //     qDebug()<< "slot item clicked widget is nullptr";
-    //     return;
-    // }
-    // auto itemtype = customitem->GetItemType();
-    // if(itemtype == ListItemType::AddUserTipItem){
-    //     _find_dlg = std::make_shared<FindSuccessDlg>(this);
-    //     auto si = std::make_shared<SearchInfo>(0 , "duya" , "duya" , "hello" , 0);
-    //     (std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg))->SetSearchInfo(si);
-    //     _find_dlg->show();
-    //     return;
-    // }
-    // // if(itemtype == ListItemType::InvalidItem){
-    // //     qDebug()<< "slot invalid item clicked ";
-    // //     return;
-    // // }
-    // CloseFindDlg();
+   
     QWidget *widget = this->itemWidget(item); //获取自定义widget对象
     if(!widget){
         qDebug()<< "slot item clicked widget is nullptr";
@@ -132,10 +120,25 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
     if(itemType == ListItemType::AddUserTipItem){
 
         //todo ...
-        _find_dlg = std::make_shared<FindSuccessDlg>(this);
-        auto si = std::make_shared<SearchInfo>(0,"llfc","llfc","hello , my friend!",0,"");
-        (std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg))->SetSearchInfo(si);
-        _find_dlg->show();
+        // _find_dlg = std::make_shared<FindSuccessDlg>(this);
+        // auto si = std::make_shared<SearchInfo>(0,"llfc","llfc","hello , my friend!",0,"");
+        // (std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg))->SetSearchInfo(si);
+        // _find_dlg->show();
+        // return;
+        if(_send_pending){
+            return;
+        }
+        if(!_search_edit){
+            return;
+        }
+        waitPending(true);
+        auto search_edit = dynamic_cast<CustomizeEdit*>(_search_edit);
+        auto uid_str = search_edit->text();
+        QJsonObject jsonobj;
+        jsonobj["uid"] = uid_str;
+        QJsonDocument doc(jsonobj);
+        QByteArray jsondata = doc.toJson(QJsonDocument::Compact);
+        emit TcpMgr::getintance()->sig_send_data(ReqType::ID_SEARCH_USER_REQ , jsondata);       //发送需要好友申请的信号
         return;
     }
 
@@ -145,5 +148,12 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
 
 void SearchList::slot_user_search(std::shared_ptr<SearchInfo> si)
 {
-
+    waitPending(false);
+    if(si == nullptr){              //未找到该用户
+        _find_dlg = std::make_shared<FindFailDlg>(this);
+    }else{
+        _find_dlg = std::make_shared<FindSuccessDlg>(this);
+        std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg)->SetSearchInfo(si);
+    }
+    _find_dlg->show();
 }

@@ -1,7 +1,7 @@
 #include "tcpmgr.h"
 #include <QDataStream>
 #include "usermgr.h"
-
+#include "userdata.h"
 
 TcpMgr::TcpMgr():_host(""),_port(0),b_recv_pending(false),_message_id(0),_message_len(0)
 {
@@ -110,6 +110,36 @@ void TcpMgr::initHandlers()
         UserMgr::getintance()->SetName(jsonObj["name"].toString());
         UserMgr::getintance()->SetToken(jsonObj["token"].toString());
         emit sig_swich_chatdlg();
+    });
+
+    _handlers.insert(ID_SEARCH_USER_RSP , [this](ReqType id, int len , QByteArray data){
+        Q_UNUSED(len);          //用不上的参数
+        qDebug()<<"handler is "<<id<<"data is "<<data;
+        QJsonDocument jsondoc = QJsonDocument::fromJson(data);          //将qbytearray转换为qjsondoucument
+        if(jsondoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsondoc.object();
+
+        if(!jsonObj.contains("error")){
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "Login Failed, err is Json Parse Err" << err ;
+            emit sig_login_failed(err);
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if(err != ErrorCodes::SUCCESS){
+            qDebug() << "Login Failed, err is " << err ;
+            emit sig_login_failed(err);
+            return;
+        }
+
+        auto search_info = std::make_shared<SearchInfo>(jsonObj["uid"].toInt() , jsonObj["name"].toString() , jsonObj["nick"].toString() ,
+                                                        jsonObj["desc"].toString() , jsonObj["sex"].toInt() , jsonObj["icon"].toString());
+        emit sig_user_search(search_info);
     });
 }
 

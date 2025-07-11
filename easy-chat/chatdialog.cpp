@@ -60,6 +60,7 @@ ChatDialog::ChatDialog(QWidget *parent)
     AddLBGroup(ui->side_contact_lb);
     this->installEventFilter(this);
     ui->side_chat_lb->SetSelected(true);
+    ui->search_list->SetSearchEdit(ui->search_edit);
 }
 
 ChatDialog::~ChatDialog()

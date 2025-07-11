@@ -12,6 +12,7 @@ public:
 	bool UpdatePass(const std::string& name, const std::string& pass);
 	bool CheckPass(const std::string& email, const std::string& pass, UserInfo& userinfo);
 	std::shared_ptr<UserInfo> GetUser(int uid);
+	std::shared_ptr<UserInfo> GetUser(const std::string& name);
 private:
 	MysqlMgr();
 	MysqlDao _dao;
