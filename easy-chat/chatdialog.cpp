@@ -9,7 +9,8 @@
 #include <QListWidget>
 #include <QTimer>
 #include <QMouseEvent>
-
+#include "tcpmgr.h"
+#include "usermgr.h"
 
 ChatDialog::ChatDialog(QWidget *parent)
     : QDialog(parent)
@@ -61,6 +62,7 @@ ChatDialog::ChatDialog(QWidget *parent)
     this->installEventFilter(this);
     ui->side_chat_lb->SetSelected(true);
     ui->search_list->SetSearchEdit(ui->search_edit);
+    connect(TcpMgr::getintance().get() , &TcpMgr::sig_friend_apply , this , &ChatDialog::slot_friend_apply);
 }
 
 ChatDialog::~ChatDialog()
@@ -192,5 +194,12 @@ void ChatDialog::slot_text_change(const QString &str)
     if(!str.isEmpty()){
         ShowSearch(true);
     }
+}
+
+void ChatDialog::slot_friend_apply(std::shared_ptr<AddFriendApply> apply)
+{
+    qDebug() << "receive apply friend slot, applyuid is " << apply->_from_uid << " name is "
+             << apply->_name << " desc is " << apply->_desc;
+
 }
 

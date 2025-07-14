@@ -3,6 +3,7 @@
 #include "UserMgr.h"
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
+#include "ChatGrpcClient.h"
 
 LogicSystem::~LogicSystem()
 {
@@ -68,6 +69,8 @@ void LogicSystem::RegisterCallbacks()
 		std::placeholders::_3);
 	_fun_callbacks[ID_SEARCH_USER_REQ] = std::bind(&LogicSystem::SearchInfo, this, std::placeholders::_1, std::placeholders::_2 
 	, std::placeholders::_3);
+	_fun_callbacks[ID_ADD_FRIEND_REQ] = std::bind(&LogicSystem::AddFriendApply, this, std::placeholders::_1, std::placeholders::_2,
+		std::placeholders::_3);
 }
 
 bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo) {
@@ -329,4 +332,68 @@ void LogicSystem::SearchInfo(std::shared_ptr<CSession> session, const short& msg
 	else {
 		GetUserByName(uid_str, rtvalue);
 	}
+}
+
+void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data)
+{
+	Json::Reader reader;
+	Json::Value root;
+	reader.parse(msg_data, root);
+	auto uid = root["uid"].asInt();			//主动申请添加好友的用户id
+	auto applyname = root["applyname"].asString();
+	auto backname = root["backname"].asString();		//给申请好友用户的备注名
+	auto touid = root["touid"].asInt();		//被申请添加好友的用户id
+	std::cout << "user login uid is  " << uid << " applyname  is "
+		<< applyname << " bakname is " << backname << " touid is " << touid << std::endl;
+
+	Json::Value rtvalue;
+	rtvalue["error"] = ErrorCodes::Success;
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, ID_ADD_FRIEND_RSP);
+		});
+
+	bool suc = MysqlMgr::GetInstance()->AddFriendApply(uid, touid);
+	if (!suc) {
+		return;
+	}
+	auto to_str = std::to_string(touid);
+	auto to_ip_key = USERIPPREFIX + to_str;
+	std::string to_ip_value = "";
+	RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);		//获取被申请添加好友的用户所在的服务器ip
+	auto& cfg = ConfigMgr::Instance();
+	auto self_name = cfg["SelfServer"]["Mame"];
+	if (to_ip_value == self_name) {		//需要添加的好友与自己在同一服务器，直接发送
+		auto session = UserMgr::GetInstance()->GetSession(touid);		//获取被申请添加好友的用户的session
+		if (session) {
+			Json::Value notify;
+			notify["error"] = ErrorCodes::Success;
+			notify["applyuid"] = uid;
+			notify["name"] = applyname;		//申请添加好友的用户的名称
+			notify["desc"] = "";
+			std::string return_str = notify.toStyledString();
+			session->Send(return_str, ID_NOTIFY_ADD_FRIEND_REQ);
+		}
+		return;
+	}
+	std::string base_key = USER_BASE_INFO + std::to_string(uid);		//获取申请添加好友的用户的基本信息
+	auto apply_info = std::make_shared<UserInfo>();
+	bool b_base = GetBaseInfo(base_key, uid, apply_info);
+
+	AddFriendReq add_req;		//构造添加好友请求消息
+	add_req.set_applyuid(uid);
+	add_req.set_touid(touid);
+	add_req.set_name(applyname);
+	add_req.set_desc("");
+	if (!b_base) {
+		rtvalue["error"] = ErrorCodes::UidInvalid;
+		return;
+	}
+	if (b_base) {
+		add_req.set_icon(apply_info->icon);
+		add_req.set_nick(apply_info->nick);
+		add_req.set_sex(apply_info->sex);
+	}
+	ChatGrpcClient::GetInstance()->NotifyAddFriend(to_ip_value, add_req);		//向被申请添加好友的用户所在的服务器发送添加好友请求消息
+
 }

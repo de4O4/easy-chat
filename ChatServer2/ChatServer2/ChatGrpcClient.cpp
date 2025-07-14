@@ -4,12 +4,34 @@
 AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFriendReq& req)
 {
     AddFriendRsp rsp;
+    Defer defer([&rsp, &req]() {
+        rsp.set_error(ErrorCodes::Success);
+		rsp.set_touid(req.touid());
+		rsp.set_applyuid(req.applyuid());
+        });
+	std::cout << server_ip << std::endl;
+    auto find_it = _pools.find(server_ip);
+    if (find_it == _pools.end()) {          //ip不在池子内
+        return rsp;
+    }
+    auto& pool = find_it->second;
+    ClientContext context;
+    auto stub = pool->GetConnection();
+    Status status = stub->NotifyAddFriend(&context, req, &rsp);
+    Defer defercon([&stub, this, &pool]() {
+        pool->ReturnConnection(std::move(stub));
+        });
+    if (!status.ok()) {
+        rsp.set_error(ErrorCodes::RPCFailed);
+        return rsp;
+    }
     return rsp;
 }
 
 AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const AuthFriendReq& req)
 {
     AuthFriendRsp rsp;
+    
     return rsp;
 }
 

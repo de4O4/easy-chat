@@ -11,6 +11,7 @@ public:
 	bool CheckEmail(const std::string& name, const std::string& email);
 	bool UpdatePass(const std::string& name, const std::string& pass);
 	bool CheckPass(const std::string& email, const std::string& pass, UserInfo& userinfo);
+	bool AddFriendApply(const int& from, const int& to);
 	std::shared_ptr<UserInfo> GetUser(int uid);
 	std::shared_ptr<UserInfo> GetUser(const std::string& name);
 private:

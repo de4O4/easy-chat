@@ -4,6 +4,7 @@
 #include <QScrollBar>
 #include "global.h"
 #include "usermgr.h"
+#include "tcpmgr.h"
 
 ApplyFriend::ApplyFriend(QWidget *parent)
     : QDialog(parent)
@@ -376,6 +377,25 @@ void ApplyFriend::SlotAddFriendLabelByClickTip(QString text)
 
 void ApplyFriend::SlotApplySure()
 {
+    QJsonObject jsonobj;
+    auto uid = UserMgr::getintance()->GetUid();
+    jsonobj["uid"] = uid;
+    auto name = ui->name_ed->text();
+    if(name.isEmpty()){
+        name = ui->name_ed->placeholderText();
+    }
+    jsonobj["applyname"] = name;
+    auto backname = ui->back_ed->text();
+    if(backname.isEmpty()){
+        backname = ui->back_ed->placeholderText();
+    }
+    jsonobj["backname"] = backname;
+    jsonobj["touid"] = _si->_uid;
+
+    QJsonDocument doc(jsonobj);
+    QByteArray jsondata = doc.toJson(QJsonDocument::Compact);
+    emit TcpMgr::getintance()->sig_send_data(ReqType::ID_ADD_FRIEND_REQ , jsondata);
+
     qDebug()<<"slot apply sure called";
     this->hide();
     deleteLater();
@@ -387,3 +407,5 @@ void ApplyFriend::SlotApplyCancel()
     this->hide();
     deleteLater();
 }
+
+
