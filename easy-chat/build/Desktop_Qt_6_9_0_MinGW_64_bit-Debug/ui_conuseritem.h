@@ -23,7 +23,7 @@ public:
     QHBoxLayout *horizontalLayout;
     QWidget *widget;
     QLabel *icon_lb;
-    QLabel *red_lb;
+    QLabel *red_point;
     QLabel *user_name_lb;
 
     void setupUi(QWidget *ConUserItem)
@@ -46,11 +46,11 @@ public:
         icon_lb->setGeometry(QRect(0, 10, 45, 45));
         icon_lb->setMinimumSize(QSize(45, 45));
         icon_lb->setMaximumSize(QSize(45, 45));
-        red_lb = new QLabel(widget);
-        red_lb->setObjectName("red_lb");
-        red_lb->setGeometry(QRect(27, 2, 30, 30));
-        red_lb->setMinimumSize(QSize(30, 30));
-        red_lb->setMaximumSize(QSize(30, 30));
+        red_point = new QLabel(widget);
+        red_point->setObjectName("red_point");
+        red_point->setGeometry(QRect(27, 2, 30, 30));
+        red_point->setMinimumSize(QSize(30, 30));
+        red_point->setMaximumSize(QSize(30, 30));
 
         horizontalLayout->addWidget(widget);
 
@@ -69,7 +69,7 @@ public:
     {
         ConUserItem->setWindowTitle(QCoreApplication::translate("ConUserItem", "Form", nullptr));
         icon_lb->setText(QString());
-        red_lb->setText(QString());
+        red_point->setText(QString());
         user_name_lb->setText(QCoreApplication::translate("ConUserItem", "TextLabel", nullptr));
     } // retranslateUi
 

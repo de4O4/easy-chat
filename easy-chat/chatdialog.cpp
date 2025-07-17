@@ -200,6 +200,14 @@ void ChatDialog::slot_friend_apply(std::shared_ptr<AddFriendApply> apply)
 {
     qDebug() << "receive apply friend slot, applyuid is " << apply->_from_uid << " name is "
              << apply->_name << " desc is " << apply->_desc;
+    bool b_already = UserMgr::getintance()->AlreadyApply(apply->_from_uid);     //查找该id的好友申请是否已在申请列表中
+    if(b_already){
+        return;
+    }
+    UserMgr::getintance()->AddApplyList(std::make_shared<ApplyInfo>(apply));         //不在申请列表则加入申请列表中
+    ui->side_contact_lb->ShowRedPoint(true);
+    ui->con_user_list->ShowRedPoint(true);
+    ui->friend_apply_page->AddNewApply(apply);
 
 }
 

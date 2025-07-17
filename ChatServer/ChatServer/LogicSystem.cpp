@@ -247,6 +247,11 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue)
 	
 }
 
+bool LogicSystem::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list)
+{
+	return MysqlMgr::GetInstance()->GetFriendApplyInfo(to_uid, list, 0, 10);
+}
+
 void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data)
 {
 	Json::Reader reader;
@@ -293,6 +298,23 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short& m
 	rvalue["desc"] = user_info->desc;
 	rvalue["sex"] = user_info->sex;
 	rvalue["icon"] = user_info->icon;
+
+	//从数据库中获取待处理的好友申请
+	std::vector<std::shared_ptr<ApplyInfo>> apply_list;
+	auto b_apply = GetFriendApplyInfo(uid, apply_list);		//获取待处理的好友申请
+	if (b_apply) {
+		for (auto& apply : apply_list) {
+			Json::Value value;
+			value["name"] = apply->_name;
+			value["uid"] = apply->_uid;
+			value["icon"] = apply->_icon;
+			value["nick"] = apply->_nick;
+			value["sex"] = apply->_sex;
+			value["desc"] = apply->_desc;
+			value["status"] = apply->_status;
+			rvalue["apply_list"].append(value);		//将待处理的好友申请添加到返回值中
+		}
+	}
 
 	auto server_name = ConfigMgr::Instance().GetValue("SelfServer", "Name");		
 	auto rd_res = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server_name);
@@ -371,12 +393,12 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 			notify["applyuid"] = uid;
 			notify["name"] = applyname;		//申请添加好友的用户的名称
 			notify["desc"] = "";
-			std::string return_str = notify.toStyledString();
+			std::string return_str = notify.toStyledString(); 
 			session->Send(return_str, ID_NOTIFY_ADD_FRIEND_REQ);
 		}
 		return;
 	}
-	std::string base_key = USER_BASE_INFO + std::to_string(uid);		//获取申请添加好友的用户的基本信息
+	std::string base_key = USER_BASE_INFO + std::to_string(uid);		//获取主动申请添加好友的用户的基本信息
 	auto apply_info = std::make_shared<UserInfo>();
 	bool b_base = GetBaseInfo(base_key, uid, apply_info);
 

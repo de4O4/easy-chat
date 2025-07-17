@@ -80,7 +80,7 @@
        <string/>
       </property>
      </widget>
-     <widget class="QLabel" name="red_lb">
+     <widget class="QLabel" name="red_point">
       <property name="geometry">
        <rect>
         <x>27</x>

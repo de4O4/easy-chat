@@ -17,7 +17,11 @@ public:
     void SetToken(QString token);
     QString GetName();
     int GetUid();
+    bool AlreadyApply(int uid);
     std::vector<std::shared_ptr<ApplyInfo>> GetApplyList();
+    void AppendApplyList(QJsonArray array);
+    void AddApplyList(std::shared_ptr<ApplyInfo> app);
+    void SetUserInfo(std::shared_ptr<UserInfo> user_info);
 private:
     UserMgr();
     QString _name;
