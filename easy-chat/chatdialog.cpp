@@ -63,6 +63,8 @@ ChatDialog::ChatDialog(QWidget *parent)
     ui->side_chat_lb->SetSelected(true);
     ui->search_list->SetSearchEdit(ui->search_edit);
     connect(TcpMgr::getintance().get() , &TcpMgr::sig_friend_apply , this , &ChatDialog::slot_friend_apply);
+    connect(TcpMgr::getintance().get() , &TcpMgr::sig_auth_rsp , this , &ChatDialog::slot_auth_rsp);
+    connect(TcpMgr::getintance().get() , &TcpMgr::sig_add_auth_friend , this , &ChatDialog::slot_add_auth_friend);
 }
 
 ChatDialog::~ChatDialog()
@@ -211,3 +213,50 @@ void ChatDialog::slot_friend_apply(std::shared_ptr<AddFriendApply> apply)
 
 }
 
+void ChatDialog::slot_add_auth_friend(std::shared_ptr<AuthInfo> auth_info)      //服务器给另一个客户端的添加好友处理
+{
+    qDebug() << "receive slot_add_auth_rsp uid is " << auth_info->_uid
+             << " name is " << auth_info->_name << " nick is " << auth_info->_nick;
+    auto bfriend = UserMgr::getintance()->CheckFriendById(auth_info->_uid);      //检查同意申请的好友 是否已经是好友了
+    if(bfriend){
+        return;
+    }
+    UserMgr::getintance()->AddFriend(auth_info);         //不是好友则添加好友
+    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    int str_i = randomValue % strs.size();
+    int head_i = randomValue % heads.size();
+    int name_i = randomValue % names.size();
+
+    auto* chat_user_wid = new ChatUserWid();            //新建一个聊天条目
+    auto user_info = std::make_shared<UserInfo>(auth_info);
+    chat_user_wid->SetInfo(user_info);
+    QListWidgetItem* item = new QListWidgetItem();
+    item->setSizeHint(chat_user_wid->sizeHint());
+    ui->chatuser_list->insertItem(0 , item);            //再聊天列表最上面插入
+    ui->chatuser_list->setItemWidget(item , chat_user_wid);
+    _chat_items_added.insert(auth_info->_uid , item);
+}
+
+void ChatDialog::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)               //服务器给本客户端的添加好友处理
+{
+    qDebug() << "receive slot_auth_rsp uid is " << auth_rsp->_uid
+             << " name is " << auth_rsp->_name << " nick is " << auth_rsp->_nick;
+    auto bfriend = UserMgr::getintance()->CheckFriendById(auth_rsp->_uid);      //检查同意申请的好友 是否已经是好友了
+    if(bfriend){
+        return;
+    }
+    UserMgr::getintance()->AddFriend(auth_rsp);         //不是好友则添加好友
+    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    int str_i = randomValue % strs.size();
+    int head_i = randomValue % heads.size();
+    int name_i = randomValue % names.size();
+
+    auto* chat_user_wid = new ChatUserWid();            //新建一个聊天条目
+    auto user_info = std::make_shared<UserInfo>(auth_rsp);
+    chat_user_wid->SetInfo(user_info);
+    QListWidgetItem* item = new QListWidgetItem();
+    item->setSizeHint(chat_user_wid->sizeHint());
+    ui->chatuser_list->insertItem(0 , item);            //再聊天列表最上面插入
+    ui->chatuser_list->setItemWidget(item , chat_user_wid);
+    _chat_items_added.insert(auth_rsp->_uid , item);
+}

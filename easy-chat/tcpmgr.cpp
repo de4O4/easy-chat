@@ -219,6 +219,75 @@ void TcpMgr::initHandlers()
         auto apply_info = std::make_shared<AddFriendApply>(from_uid , name , desc , icon , nick , sex);
         emit sig_friend_apply(apply_info);
     });
+
+
+    _handlers.insert(ID_AUTH_FRIEND_RSP , [this](ReqType id, int len , QByteArray data){          //从服务器获取到主动添加好友的用户的基本信息
+        Q_UNUSED(len);          //用不上的参数
+        qDebug()<<"handler is "<<id<<"data is "<<data;
+        QJsonDocument jsondoc = QJsonDocument::fromJson(data);          //将qbytearray转换为qjsondoucument
+        if(jsondoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsondoc.object();
+
+        if(!jsonObj.contains("error")){
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "Auth_FRIEND Failed, err is Json Parse Err" << err ;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if(err != ErrorCodes::SUCCESS){
+            qDebug() << "Auth_FRIEND Failed, err is " << err ;
+            return;
+        }
+
+        int uid = jsonObj["uid"].toInt();
+        QString name = jsonObj["name"].toString();
+        QString icon = jsonObj["icon"].toString();
+        QString nick = jsonObj["nick"].toString();
+        int sex = jsonObj["sex"].toInt();
+
+        auto rsp = std::make_shared<AuthRsp>(uid , name , nick , icon , sex);
+        emit sig_auth_rsp(rsp);
+        qDebug() << "Auth Friend Success " ;
+    });
+
+
+    _handlers.insert(ID_NOTIFY_AUTH_FRIEND_REQ , [this](ReqType id, int len , QByteArray data){          //从服务器获得被添加好友的基本的信息
+        Q_UNUSED(len);          //用不上的参数
+        qDebug()<<"handler is "<<id<<"data is "<<data;
+        QJsonDocument jsondoc = QJsonDocument::fromJson(data);          //将qbytearray转换为qjsondoucument
+        if(jsondoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsondoc.object();
+
+        if(!jsonObj.contains("error")){
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "Auth_FRIEND Failed, err is Json Parse Err" << err ;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if(err != ErrorCodes::SUCCESS){
+            qDebug() << "Auth_FRIEND Failed, err is " << err ;
+            return;
+        }
+
+        int from_uid = jsonObj["applyuid"].toInt();
+        QString name = jsonObj["name"].toString();
+        QString icon = jsonObj["icon"].toString();
+        QString nick = jsonObj["nick"].toString();
+        int sex = jsonObj["sex"].toInt();
+
+        auto auth_info = std::make_shared<AuthInfo>(from_uid , name , nick , icon , sex);
+        emit sig_add_auth_friend(auth_info);
+    });
 }
 
 void TcpMgr::slot_tcp_connect(ServerInfo si)

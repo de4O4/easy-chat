@@ -7,15 +7,7 @@ UserMgr::~UserMgr()
 
 }
 
-void UserMgr::SetName(QString name)
-{
-    _name = name;
-}
 
-void UserMgr::SetUid(int uid)
-{
-    _uid = uid;
-}
 
 void UserMgr::SetToken(QString token)
 {
@@ -24,7 +16,7 @@ void UserMgr::SetToken(QString token)
 
 QString UserMgr::GetName()
 {
-    return _name;
+    return _user_info->_name;
 }
 
 int UserMgr::GetUid()
@@ -70,6 +62,27 @@ void UserMgr::AddApplyList(std::shared_ptr<ApplyInfo> app)
 void UserMgr::SetUserInfo(std::shared_ptr<UserInfo> user_info)
 {
     _user_info = user_info;
+}
+
+bool UserMgr::CheckFriendById(int uid)
+{
+    auto it = _friend_map.find(uid);
+    if(it == _friend_map.end()){
+        return false;
+    }
+    return true;
+}
+
+void UserMgr::AddFriend(std::shared_ptr<AuthRsp> auth_rsp)
+{
+    auto friend_info = std::make_shared<FriendInfo>(auth_rsp);
+    _friend_map[friend_info->_uid] = friend_info;
+}
+
+void UserMgr::AddFriend(std::shared_ptr<AuthInfo> auth_info)
+{
+    auto friend_info = std::make_shared<FriendInfo>(auth_info);
+    _friend_map[friend_info->_uid] = friend_info;
 }
 
 UserMgr::UserMgr():_user_info(nullptr)

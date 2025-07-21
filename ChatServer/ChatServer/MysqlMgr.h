@@ -13,6 +13,8 @@ public:
 	bool CheckPass(const std::string& email, const std::string& pass, UserInfo& userinfo);
 	bool AddFriendApply(const int& from, const int& to);
 	bool GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list, int offset, int limit);
+	bool AuthFriendApply(const int& from, const int& to);
+	bool AddFriend(const int& from, const int& to, std::string back_name);
 	std::shared_ptr<UserInfo> GetUser(int uid);
 	std::shared_ptr<UserInfo> GetUser(const std::string& name);
 private:

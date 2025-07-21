@@ -4,7 +4,8 @@
 #include <QScrollBar>
 #include <QRandomGenerator>
 #include "grouptipitem.h"
-
+#include "tcpmgr.h"
+#include "usermgr.h"
 
 ContactUserList::ContactUserList(QWidget *parent)
 {
@@ -14,7 +15,8 @@ ContactUserList::ContactUserList(QWidget *parent)
     this->viewport()->installEventFilter(this);
     addContactUserList();
     connect(this , &QListWidget::itemClicked , this , &ContactUserList::slot_item_clicked);     //当组件被点击触发
-
+    connect(TcpMgr::getintance().get() , &TcpMgr::sig_auth_rsp , this , &ContactUserList::slot_auth_rsp);
+    connect(TcpMgr::getintance().get() , &TcpMgr::sig_add_auth_friend , this , &ContactUserList::slot_add_auth_firend);
 
 }
 
@@ -122,4 +124,58 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)          //根据
         emit sig_switch_friend_info_page();
         return;
     }
+}
+
+void ContactUserList::slot_add_auth_firend(std::shared_ptr<AuthInfo> auth_info)
+{
+    qDebug() << "slot add auth friend ";
+    bool isFriend = UserMgr::getintance()->CheckFriendById(auth_info->_uid);
+    if(isFriend){
+        return;
+    }
+    // 在 groupitem 之后插入新项
+    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    int str_i = randomValue%strs.size();
+    int head_i = randomValue%heads.size();
+
+    auto *con_user_wid = new ConUserItem();
+    con_user_wid->SetInfo(auth_info);
+    QListWidgetItem *item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+    item->setSizeHint(con_user_wid->sizeHint());
+
+    // 获取 groupitem 的索引
+    int index = this->row(_groupitem);
+    // 在 groupitem 之后插入新项
+    this->insertItem(index + 1, item);
+
+    this->setItemWidget(item, con_user_wid);
+
+}
+
+void ContactUserList::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)
+{
+    qDebug() << "slot auth rsp called";
+    bool isFriend = UserMgr::getintance()->CheckFriendById(auth_rsp->_uid);
+    if(isFriend){
+        return;
+    }
+    // 在 groupitem 之后插入新项
+    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    int str_i = randomValue%strs.size();
+    int head_i = randomValue%heads.size();
+
+    auto *con_user_wid = new ConUserItem();
+    con_user_wid->SetInfo(auth_rsp->_uid ,auth_rsp->_name, heads[head_i]);
+    QListWidgetItem *item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+    item->setSizeHint(con_user_wid->sizeHint());
+
+    // 获取 groupitem 的索引
+    int index = this->row(_groupitem);
+    // 在 groupitem 之后插入新项
+    this->insertItem(index + 1, item);
+
+    this->setItemWidget(item, con_user_wid);
+
 }

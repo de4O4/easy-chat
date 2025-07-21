@@ -310,4 +310,94 @@ bool MysqlDao::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyI
 	return true;
 }
 
+bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name)
+{
+	auto con = _pool->getConnection();
+	if (con == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &con]() {
+		_pool->ReturnConnection(std::move(con));
+		});
+	try
+	{
+		//开始事务
+		con->setAutoCommit(false);
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement("INSERT IGNORE INTO friend(self_id, friend_id, back_name) "				
+			"VALUES (?, ?, ?) "));			// 准备第一个SQL语句, 插入认证方好友数据
+		pstmt->setInt(1, from);
+		pstmt->setInt(2, to);
+		pstmt->setString(3, back_name);
+		int rowsAffected = pstmt->executeUpdate();	//执行更新操作
+		if (rowsAffected < 0) {
+			con->rollback();
+			return false;
+		}
+
+
+		std::unique_ptr < sql::PreparedStatement> pstmt2(con->prepareStatement("INSERT IGNORE INTO friend(self_id, friend_id, back_name) "
+			"VALUES (?, ?, ?) "));		//准备第二个SQL语句，插入申请方好友数据
+		pstmt2->setInt(1, to);
+		pstmt2->setInt(2, from);
+		pstmt2->setString(3, back_name);
+		int rowaaffected2 = pstmt2->executeUpdate();
+		if (rowaaffected2 < 0) {
+			con->rollback();
+			return false;
+		}
+		// 提交事务
+		con->commit();
+		std::cout << "addfriend insert friends success" << std::endl;
+		return true;
+
+	}
+	catch (sql::SQLException& e)
+	{
+		_pool->ReturnConnection(std::move(con));
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+bool MysqlDao::AuthFriendApply(const int& from, const int& to)
+{
+	auto con = _pool->getConnection();
+	if (con == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &con]() {
+		_pool->ReturnConnection(std::move(con));
+		});
+	try
+	{
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement("UPDATE friend_apply SET status = 1 "
+			"WHERE from_uid = ? AND to_uid = ?"));
+		pstmt->setInt(1, to); // from id
+		pstmt->setInt(2, from);
+		int rowsAffected = pstmt->executeUpdate();	//执行更新操作
+		if (rowsAffected < 0) {
+			std::cerr << "AuthFriendApply failed, rowsAffected: " << rowsAffected << std::endl;
+			return false;
+		}
+		return true;
+
+	}
+	catch (sql::SQLException& e)
+	{
+		if (con) {
+			con->rollback();
+		}
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return false;
+	}
+	return true;
+}
+
 
