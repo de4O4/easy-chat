@@ -46,7 +46,7 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
         "sig_send_data",
         "ReqType",
         "reqid",
-        "data",
+        "dataBytes",
         "sig_login_failed",
         "err",
         "sig_swich_chatdlg",
@@ -61,7 +61,8 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
         "std::shared_ptr<AuthRsp>",
         "slot_tcp_connect",
         "ServerInfo",
-        "slot_send_data"
+        "slot_send_data",
+        "reqId"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -70,8 +71,8 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
             { QMetaType::Bool, 3 },
         }}),
         // Signal 'sig_send_data'
-        QtMocHelpers::SignalData<void(ReqType, QString)>(4, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 5, 6 }, { QMetaType::QString, 7 },
+        QtMocHelpers::SignalData<void(ReqType, QByteArray)>(4, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 5, 6 }, { QMetaType::QByteArray, 7 },
         }}),
         // Signal 'sig_login_failed'
         QtMocHelpers::SignalData<void(int)>(8, 2, QMC::AccessPublic, QMetaType::Void, {{
@@ -100,8 +101,8 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
             { 0x80000000 | 21, 13 },
         }}),
         // Slot 'slot_send_data'
-        QtMocHelpers::SlotData<void(ReqType, QString)>(22, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 5, 6 }, { QMetaType::QString, 7 },
+        QtMocHelpers::SlotData<void(ReqType, QByteArray)>(22, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 5, 23 }, { QMetaType::QByteArray, 7 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -127,7 +128,7 @@ void TcpMgr::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->sig_conn_success((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
-        case 1: _t->sig_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 1: _t->sig_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[2]))); break;
         case 2: _t->sig_login_failed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 3: _t->sig_swich_chatdlg(); break;
         case 4: _t->sig_user_search((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<SearchInfo>>>(_a[1]))); break;
@@ -135,14 +136,14 @@ void TcpMgr::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 6: _t->sig_add_auth_friend((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<AuthInfo>>>(_a[1]))); break;
         case 7: _t->sig_auth_rsp((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<AuthRsp>>>(_a[1]))); break;
         case 8: _t->slot_tcp_connect((*reinterpret_cast< std::add_pointer_t<ServerInfo>>(_a[1]))); break;
-        case 9: _t->slot_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 9: _t->slot_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[2]))); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(bool )>(_a, &TcpMgr::sig_conn_success, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(ReqType , QString )>(_a, &TcpMgr::sig_send_data, 1))
+        if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(ReqType , QByteArray )>(_a, &TcpMgr::sig_send_data, 1))
             return;
         if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(int )>(_a, &TcpMgr::sig_login_failed, 2))
             return;
@@ -201,7 +202,7 @@ void TcpMgr::sig_conn_success(bool _t1)
 }
 
 // SIGNAL 1
-void TcpMgr::sig_send_data(ReqType _t1, QString _t2)
+void TcpMgr::sig_send_data(ReqType _t1, QByteArray _t2)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
 }

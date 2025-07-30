@@ -7,7 +7,7 @@ ConUserItem::ConUserItem(QWidget *parent)
 {
     ui->setupUi(this);
     SetItemType(ListItemType::ContactUserItem);
-    ui->red_lb->raise();
+    ui->red_point->raise();
     ShowRedPoint(false);
 }
 
@@ -51,9 +51,9 @@ void ConUserItem::SetInfo(int uid, QString name, QString icon)
 void ConUserItem::ShowRedPoint(bool show)
 {
     if(show){
-        ui->red_lb->show();
+        ui->red_point->show();
     }else{
-        ui->red_lb->hide();
+        ui->red_point->hide();
     }
 }
 

@@ -92,7 +92,8 @@ bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<Use
 		userinfo->sex = root["sex"].asInt();
 		userinfo->icon = root["icon"].asString();
 		std::cout << "user login uid is  " << userinfo->uid << " name  is "
-			<< userinfo->name << " pwd is " << userinfo->pwd << " email is " << userinfo->email << std::endl;
+			<< userinfo->name << " pwd is " << userinfo->pwd << " email is " << userinfo->email 
+			<<"icon is "<<userinfo->icon<<std::endl;
 	}
 	else {
 		//redis中没有则查询mysql
@@ -392,6 +393,19 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short& m
 			value["status"] = apply->_status;
 			rvalue["apply_list"].append(value);		//将待处理的好友申请添加到返回值中
 		}
+	}
+	std::vector<std::shared_ptr<UserInfo>> friend_list;				//加载好友列表
+	bool b_friend_list = MysqlMgr::GetInstance()->GetFriendList(uid, friend_list);
+	for (auto& friend_it : friend_list) {
+		Json::Value obj;
+		obj["uid"] = friend_it->uid;
+		obj["name"] = friend_it->name;
+		obj["nick"] = friend_it->nick;
+		obj["icon"] = friend_it->icon;
+		obj["sex"] = friend_it->sex;
+		obj["desc"] = friend_it->desc;
+		obj["back"] = friend_it->back;
+		rvalue["friend_list"].append(obj);		//将好友列表添加到返回值中
 	}
 
 	auto server_name = ConfigMgr::Instance().GetValue("SelfServer", "Name");		

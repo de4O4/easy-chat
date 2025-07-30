@@ -6,8 +6,10 @@
 #include "grouptipitem.h"
 #include "tcpmgr.h"
 #include "usermgr.h"
+#include <QTimer>
+#include "conuseritem.h"
 
-ContactUserList::ContactUserList(QWidget *parent)
+ContactUserList::ContactUserList(QWidget *parent):_load_pending(false),_add_friend_item(nullptr)
 {
     Q_UNUSED(parent);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -36,18 +38,43 @@ bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
     }
 
     if(watched == this->viewport() && event->type() == QEvent::Wheel){
-        QWheelEvent *wheelevent = static_cast<QWheelEvent*>(event);
-        int numdegrees = wheelevent->angleDelta().y() / 8;
-        int numsteps = numdegrees / 15;
-        this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() - numsteps);
-        QScrollBar * scrollbar = this->verticalScrollBar();
-        int maxscrollvalue = scrollbar->maximum();
-        int currentvalue = scrollbar->value();
-        if(maxscrollvalue  - currentvalue <= 0){
+        QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+        int numDegrees = wheelEvent->angleDelta().y() / 8;
+        int numSteps = numDegrees / 15; // 计算滚动步数
+
+        // 设置滚动幅度
+        this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() - numSteps);
+
+        // 检查是否滚动到底部
+        QScrollBar *scrollBar = this->verticalScrollBar();
+        int maxScrollValue = scrollBar->maximum();
+        int currentValue = scrollBar->value();
+        //int pageSize = 10; // 每页加载的联系人数量
+
+        if (maxScrollValue - currentValue <= 0) {
+
+            auto b_loaded = UserMgr::getintance()->IsLoadChatFin();
+            if(b_loaded){
+                return true;
+            }
+
+            if(_load_pending){
+                return true;
+            }
+
+            _load_pending = true;
+
+            QTimer::singleShot(100, [this](){
+                _load_pending = false;
+                QCoreApplication::quit(); // 完成后退出应用程序
+            });
+            // 滚动到底部，加载新的联系人
             qDebug()<<"load more contact user";
+            //发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_contact_user();
         }
-        return true;
+
+        return true; // 停止事件传递
     }
     return QListWidget::eventFilter(watched , event);
 }
@@ -82,6 +109,23 @@ void ContactUserList::addContactUserList()
     this->setItemWidget(_groupitem, groupCon);
     _groupitem->setFlags(_groupitem->flags() & ~Qt::ItemIsSelectable);
     // 创建QListWidgetItem，并设置自定义的widget
+
+    //加载后端发送过来的好友列表
+    auto con_list = UserMgr::getintance()->GetConListPerPage();
+    for(auto & con_ele : con_list){
+        auto *con_user_wid = new ConUserItem();
+        con_user_wid->SetInfo(con_ele->_uid,con_ele->_name, con_ele->_icon);
+        QListWidgetItem *item = new QListWidgetItem;
+        //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+        item->setSizeHint(con_user_wid->sizeHint());
+        this->addItem(item);
+        this->setItemWidget(item, con_user_wid);
+    }
+
+    UserMgr::getintance()->UpdateContactLoadedCount();
+
+
+
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
         int str_i = randomValue%strs.size();
@@ -121,7 +165,9 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)          //根据
     }
     if(itemtype == ListItemType::ContactUserItem){
         qDebug()<<"concact user item clicked";
-        emit sig_switch_friend_info_page();
+        auto con_item = qobject_cast<ConUserItem*>(customitem);
+        auto user_info = con_item->GetInfo();
+        emit sig_switch_friend_info_page(user_info);
         return;
     }
 }

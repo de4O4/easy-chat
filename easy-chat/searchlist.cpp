@@ -8,6 +8,7 @@
 #include "customizeedit.h"
 #include "loadingdlg.h"
 #include "findfaildlg.h"
+#include "usermgr.h"
 
 SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr),_search_edit(nullptr),_send_pending(false)
 {
@@ -152,6 +153,15 @@ void SearchList::slot_user_search(std::shared_ptr<SearchInfo> si)
     if(si == nullptr){              //未找到该用户
         _find_dlg = std::make_shared<FindFailDlg>(this);
     }else{
+        auto self_id = UserMgr::getintance()->GetUid();
+        if(self_id == si->_uid){        //搜索的是自己则返回
+            return;
+        }
+        bool b_isfriend = UserMgr::getintance()->CheckFriendById(si->_uid);     //检查搜索的用户是否为已经是自己好友
+        if(b_isfriend){
+            emit sig_jump_chat_item(si);            //已经为好友则跳转到聊天界面
+            return;
+        }
         _find_dlg = std::make_shared<FindSuccessDlg>(this);
         std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg)->SetSearchInfo(si);
     }

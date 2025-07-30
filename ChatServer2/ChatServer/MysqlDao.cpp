@@ -400,4 +400,45 @@ bool MysqlDao::AuthFriendApply(const int& from, const int& to)
 	return true;
 }
 
+bool MysqlDao::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_info_list)
+{
+	auto con = _pool->getConnection();
+	if (con == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &con]() {
+		_pool->ReturnConnection(std::move(con));
+		});
+	try
+	{
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement("select * from friend where self_id = ? "));
+		pstmt->setInt(1, self_id); // 
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		while (res->next()) {
+			auto friend_id = res->getInt("friend_id");
+			auto back = res->getString("back_name");
+			auto user_info = GetUser(friend_id);
+			if (user_info == nullptr) {
+				continue;
+			}
+			user_info->back = user_info->name; // 这里可以设置back_name为用户的名字
+			user_info_list.push_back(user_info);
+		}
+		return true;
+
+	}
+	catch (sql::SQLException& e)
+	{
+		if (con) {
+			con->rollback();
+		}
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return false;
+	}
+	return true;
+}
+
 

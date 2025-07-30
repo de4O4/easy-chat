@@ -121,8 +121,8 @@ void loginDialog::slot_tcp_con_finish(bool bsuccess)                //聊天服�
         jsonobj["uid"] = _uid;
         jsonobj["token"] = _token;
         QJsonDocument doc(jsonobj);     //将qjsonobj类型先转换为qjsondocument类型
-        QString jsonstr = doc.toJson(QJsonDocument::Indented);      //在将qjsonducument类型转为qstring类型
-        emit TcpMgr::getintance()->sig_send_data(ReqType::ID_CHAT_LOGIN , jsonstr);     //向聊天服务器发送用户id与token
+        QByteArray jsondata = doc.toJson(QJsonDocument::Indented);      //在将qjsonducument类型转为qstring类型
+        emit TcpMgr::getintance()->sig_send_data(ReqType::ID_CHAT_LOGIN , jsondata);     //向聊天服务器发送用户id与token
 
     }else{
         showTip(tr("网络错误！") , false);

@@ -17,9 +17,9 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 #include <chatview.h>
-#include <clickedbtn.h>
 #include <clickedlabel.h>
 #include <messagetextedit.h>
+#include "clickedbtn.h"
 
 QT_BEGIN_NAMESPACE
 

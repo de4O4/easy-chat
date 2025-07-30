@@ -1,6 +1,6 @@
 #include "usermgr.h"
 #include <QJsonValue>
-
+#include "global.h"
 
 UserMgr::~UserMgr()
 {
@@ -24,6 +24,11 @@ int UserMgr::GetUid()
     return _user_info->_uid;
 }
 
+QString UserMgr::GetIcon()
+{
+    return _user_info->_icon;
+}
+
 bool UserMgr::AlreadyApply(int uid)             //检查该uid所对应的用户是否已经在申请好友列表内
 {
     for(auto& apply : _apply_list){
@@ -37,6 +42,20 @@ bool UserMgr::AlreadyApply(int uid)             //检查该uid所对应的用户
 std::vector<std::shared_ptr<ApplyInfo> > UserMgr::GetApplyList()
 {
     return _apply_list;
+}
+
+std::shared_ptr<UserInfo> UserMgr::GetUserInfo()
+{
+    return _user_info;
+}
+
+std::shared_ptr<FriendInfo> UserMgr::GetFriendById(int uid)
+{
+    auto find_it = _friend_map.find(uid);
+    if(find_it == _friend_map.end()){
+        return nullptr;
+    }
+    return *find_it;
 }
 
 void UserMgr::AppendApplyList(QJsonArray array)
@@ -85,7 +104,111 @@ void UserMgr::AddFriend(std::shared_ptr<AuthInfo> auth_info)
     _friend_map[friend_info->_uid] = friend_info;
 }
 
-UserMgr::UserMgr():_user_info(nullptr)
+void UserMgr::AddFriendList(QJsonArray array)
+{
+    for(const QJsonValue& value : array){
+        auto name = value["name"].toString();
+        auto desc = value["desc"].toString();
+        auto icon = value["icon"].toString();
+        auto nick = value["nick"].toString();
+        auto sex = value["sex"].toInt();
+        auto uid = value["uid"].toInt();
+        auto back = value["back"].toString();
+        auto user_info = std::make_shared<FriendInfo>(uid , name , nick , icon , sex , desc , back);
+        _friend_list.push_back(user_info);
+        _friend_map.insert(uid , user_info);
+    }
+}
+
+std::vector<std::shared_ptr<FriendInfo> > UserMgr::GetChatListPerPage()         //分页加载好友列表
+{
+    std::vector<std::shared_ptr<FriendInfo>> friend_list;
+    int begin = _chat_loaded;
+    int end = begin + CHAT_COUNT_PER_PAGE;
+    if(begin >= _friend_list.size()){
+        return friend_list;
+    }
+    if(end > _friend_list.size()){
+        friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin , _friend_list.end());
+        return friend_list;
+    }
+    friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin , _friend_list.begin() + end);
+    return friend_list;
+}
+
+bool UserMgr::IsLoadChatFin()
+{
+    if(_chat_loaded >= _friend_list.size()){
+        return true;
+    }
+    return false;
+}
+
+void UserMgr::UpdateChatLoadedCount()
+{
+    int begin = _chat_loaded;
+    int end = begin + CHAT_COUNT_PER_PAGE;
+    if(begin >= _friend_list.size()){
+        return;
+    }
+    if(end > _friend_list.size()){
+        _chat_loaded = _friend_list.size();
+    }
+    _chat_loaded = end;
+}
+
+std::vector<std::shared_ptr<FriendInfo> > UserMgr::GetConListPerPage()
+{
+    std::vector<std::shared_ptr<FriendInfo>> friend_list;
+    int begin = _contact_loaded;
+    int end = begin + CHAT_COUNT_PER_PAGE;
+
+    if (begin >= _friend_list.size()) {
+        return friend_list;
+    }
+
+    if (end > _friend_list.size()) {
+        friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin, _friend_list.end());
+        return friend_list;
+    }
+
+
+    friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin, _friend_list.begin() + end);
+    return friend_list;
+}
+
+void UserMgr::UpdateContactLoadedCount()
+{
+    int begin = _contact_loaded;
+    int end = begin + CHAT_COUNT_PER_PAGE;
+    if(begin >= _friend_list.size()){
+        return;
+    }
+    if(end > _friend_list.size()){
+        _contact_loaded = _friend_list.size();
+    }
+    _contact_loaded = end;
+}
+
+bool UserMgr::IsLoadConFin()
+{
+    if(_contact_loaded >= _friend_list.size()){
+        return true;
+    }
+    return false;
+}
+
+void UserMgr::AppendFriendChatMsg(int friend_id, std::vector<std::shared_ptr<TextChatData> > msgs)
+{
+    auto find_it = _friend_map.find(friend_id);
+    if(find_it == _friend_map.end()){
+        qDebug()<<"append friend uid "<<friend_id<<" not found";
+        return;
+    }
+    find_it.value()->AppendChatMsgs(msgs);
+}
+
+UserMgr::UserMgr():_user_info(nullptr), _chat_loaded(0),_contact_loaded(0)
 {
 
 }

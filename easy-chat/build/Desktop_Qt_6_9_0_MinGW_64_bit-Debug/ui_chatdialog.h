@@ -21,11 +21,12 @@
 #include <applyfriendpage.h>
 #include <chatpage.h>
 #include <chatuserlist.h>
-#include <clickedbtn.h>
 #include <contactuserlist.h>
 #include <customizeedit.h>
+#include <friendinfopage.h>
 #include <searchlist.h>
 #include <statewidget.h>
+#include "clickedbtn.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -54,6 +55,7 @@ public:
     QStackedWidget *stackedWidget;
     ChatPage *chat_page;
     ApplyFriendPage *friend_apply_page;
+    FriendInfoPage *friend_info_page;
 
     void setupUi(QDialog *ChatDialog)
     {
@@ -175,13 +177,16 @@ public:
         friend_apply_page = new ApplyFriendPage();
         friend_apply_page->setObjectName("friend_apply_page");
         stackedWidget->addWidget(friend_apply_page);
+        friend_info_page = new FriendInfoPage();
+        friend_info_page->setObjectName("friend_info_page");
+        stackedWidget->addWidget(friend_info_page);
 
         horizontalLayout->addWidget(stackedWidget);
 
 
         retranslateUi(ChatDialog);
 
-        stackedWidget->setCurrentIndex(1);
+        stackedWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ChatDialog);

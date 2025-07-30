@@ -120,7 +120,9 @@ void TcpMgr::initHandlers()
             UserMgr::getintance()->AppendApplyList(jsonObj["apply_list"].toArray());
         }
 
-
+        if(jsonObj.contains("friend_list")){
+            UserMgr::getintance()->AddFriendList(jsonObj["friend_list"].toArray());
+        }
 
         emit sig_swich_chatdlg();
     });
@@ -298,17 +300,42 @@ void TcpMgr::slot_tcp_connect(ServerInfo si)
     _socket.connectToHost(_host , _port);           //连接聊天服务器
 }
 
-void TcpMgr::slot_send_data(ReqType reqid, QString data)
+// void TcpMgr::slot_send_data(ReqType reqid, QString data)
+// {
+//     uint16_t id = reqid;
+//     QByteArray databytes = data.toUtf8();       //转换为字符串数组
+//     quint16 len = static_cast<quint16>(databytes.size());
+//     QByteArray block;
+//     QDataStream out(&block , QIODevice::WriteOnly);
+//     out<<id<<len;       //将发送长度，与类型写入数组中
+//     block.append(databytes);
+//     _socket.write(block);
+//     qDebug()<<"消息发送成功"<<"  "<<block;
+// }
+
+void TcpMgr::slot_send_data(ReqType reqId, QByteArray dataBytes)
 {
-    uint16_t id = reqid;
-    QByteArray databytes = data.toUtf8();       //转换为字符串数组
-    quint16 len = static_cast<quint16>(databytes.size());
+    uint16_t id = reqId;
+
+    // 计算长度（使用网络字节序转换）
+    quint16 len = static_cast<quint16>(dataBytes.length());
+
+    // 创建一个QByteArray用于存储要发送的所有数据
     QByteArray block;
-    QDataStream out(&block , QIODevice::WriteOnly);
-    out<<id<<len;       //将发送长度，与类型写入数组中
-    block.append(databytes);
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    // 设置数据流使用网络字节序
+    out.setByteOrder(QDataStream::BigEndian);
+
+    // 写入ID和长度
+    out << id << len;
+
+    // 添加字符串数据
+    block.append(dataBytes);
+
+    // 发送数据
     _socket.write(block);
-    qDebug()<<"消息发送成功"<<"  "<<block;
+    qDebug() << "tcp mgr send byte data is " << block ;
 }
 
 

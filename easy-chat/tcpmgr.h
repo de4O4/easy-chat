@@ -26,7 +26,7 @@ private:
     QMap<ReqType, std::function<void(ReqType id, int len, QByteArray data)>> _handlers;
 signals:
     void sig_conn_success(bool bsueccess);
-    void sig_send_data(ReqType reqid, QString data);
+    void sig_send_data(ReqType reqid, QByteArray dataBytes);
     void sig_login_failed(int err);
     void sig_swich_chatdlg();
     void sig_user_search(std::shared_ptr<SearchInfo> si);
@@ -35,7 +35,8 @@ signals:
     void sig_auth_rsp(std::shared_ptr<AuthRsp>);
 public slots:
     void slot_tcp_connect(ServerInfo si);
-    void slot_send_data(ReqType reqid, QString data);
+ //   void slot_send_data(ReqType reqid, QString data);
+    void slot_send_data(ReqType reqId, QByteArray dataBytes);
 };
 
 #endif // TCPMGR_H
