@@ -41,6 +41,7 @@ private:
     QWidget* _last_widget;
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
+    void UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata);
 public slots:
     void slot_loading_chat_user();
     void slot_side_chat();
@@ -56,6 +57,7 @@ public slots:
     void slot_jump_chat_item_from_infopage(std::shared_ptr<UserInfo> ui);
     void slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata);
     void slot_item_clicked(QListWidgetItem *item);
+    void slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg);
 };
 
 #endif // CHATDIALOG_H

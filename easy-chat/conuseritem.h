@@ -5,6 +5,17 @@
 #include "listitembase.h"
 #include "userdata.h"
 
+/******************************************************************************
+ *
+ * @file       conuseritem.h
+ * @brief      自定义的联系人条目
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
 namespace Ui {
 class ConUserItem;
 }

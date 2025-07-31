@@ -3,6 +3,17 @@
 #include <QWidget>
 #include "global.h"
 
+/******************************************************************************
+ *
+ * @file       listitembase.h
+ * @brief      每个聊天。联系人条目的widget
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
 class ListItemBase:public QWidget
 {
     Q_OBJECT

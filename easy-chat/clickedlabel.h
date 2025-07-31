@@ -3,6 +3,18 @@
 #include "global.h"
 #include <QLabel>
 
+
+/******************************************************************************
+ *
+ * @file       clickedlabel.h
+ * @brief      自定义可点击的标签，选中未选中状态的展示不同
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
 class ClickedLabel : public QLabel
 {
     Q_OBJECT

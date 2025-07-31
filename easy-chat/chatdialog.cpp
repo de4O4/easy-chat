@@ -39,9 +39,9 @@ ChatDialog::ChatDialog(QWidget *parent)
         clearaction->setIcon(QIcon(":/res/close_transparent.png"));
         ui->search_edit->clearFocus();
     });
+
     ShowSearch(false);
     addChatUserList();
-    connect(ui->chatuser_list , &ChatUserList::sig_loading_chat_user , this , &ChatDialog::slot_loading_chat_user);
 
     QString head_icon = UserMgr::getintance()->GetIcon();
     QPixmap pixmap(head_icon);
@@ -49,17 +49,12 @@ ChatDialog::ChatDialog(QWidget *parent)
     QPixmap scalpixmap = pixmap.scaled(ui->side_head_lb->size() , Qt::KeepAspectRatio, Qt::SmoothTransformation);
     ui->side_head_lb->setPixmap(scalpixmap);
     ui->side_head_lb->setScaledContents(true);      //自适应缩放
-
     ui->side_chat_lb->setProperty("state","normal");
     ui->side_chat_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
-
     ui->side_contact_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
 
-
     ui->stackedWidget->setCurrentWidget(ui->chat_page);
-    connect(ui->side_chat_lb , &StateWidget::clicked , this , &ChatDialog::slot_side_chat);
-    connect(ui->side_contact_lb , &StateWidget::clicked , this , &ChatDialog::slot_side_contact);
-    connect(ui->search_edit , &QLineEdit::textChanged , this , &ChatDialog::slot_text_change);
+
 
     AddLBGroup(ui->side_chat_lb);
     AddLBGroup(ui->side_contact_lb);
@@ -81,6 +76,12 @@ ChatDialog::ChatDialog(QWidget *parent)
     connect(ui->friend_info_page , &FriendInfoPage::sig_jump_chat_item , this , &ChatDialog::slot_jump_chat_item_from_infopage);
     connect(ui->chat_page , &ChatPage::sig_append_send_chat_msg , this , &ChatDialog::slot_append_send_chat_msg);
     connect(ui->chatuser_list, &QListWidget::itemClicked, this, &ChatDialog::slot_item_clicked);
+    connect(ui->side_chat_lb , &StateWidget::clicked , this , &ChatDialog::slot_side_chat);
+    connect(ui->side_contact_lb , &StateWidget::clicked , this , &ChatDialog::slot_side_contact);
+    connect(ui->search_edit , &QLineEdit::textChanged , this , &ChatDialog::slot_text_change);
+    connect(ui->chatuser_list , &ChatUserList::sig_loading_chat_user , this , &ChatDialog::slot_loading_chat_user);
+    connect(TcpMgr::getintance().get() , &TcpMgr::sig_text_chat_msg , this , &ChatDialog::slot_text_chat_msg);
+
 }
 
 ChatDialog::~ChatDialog()
@@ -318,6 +319,16 @@ bool ChatDialog::eventFilter(QObject *watched, QEvent *event)
         handleGlobalMousePress(mouseevent);
     }
     return QDialog::eventFilter(watched , event);
+}
+
+void ChatDialog::UpdateChatMsg(std::vector<std::shared_ptr<TextChatData> > msgdata)
+{
+    for(auto& msg : msgdata){
+        if(msg->_from_uid != _cur_chat_uid){
+            break;
+        }
+        ui->chat_page->AppendChatMsg(msg);
+    }
 }
 
 void ChatDialog::slot_loading_chat_user()
@@ -584,4 +595,34 @@ void ChatDialog::slot_item_clicked(QListWidgetItem *item)
         _cur_chat_uid = user_info->_uid;
         return;
     }
+}
+
+void ChatDialog::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
+{
+    auto from_uid = msg->_from_uid;
+    auto find_it = _chat_items_added.find(from_uid);
+    if(find_it != _chat_items_added.end()){
+        qDebug()<<" set chat item msg , uid is "<<from_uid;
+        QWidget* widget = ui->chatuser_list->itemWidget(find_it.value());
+        auto chat_wid = qobject_cast<ChatUserWid*>(widget);
+        if(!chat_wid){
+            return;
+        }
+        chat_wid->updateLastMsg(msg->_chat_msgs);       //更新当前聊天页面记录
+        UpdateChatMsg(msg->_chat_msgs);
+        UserMgr::getintance()->AppendFriendChatMsg(from_uid , msg->_chat_msgs);
+        return;
+    }
+    auto* chat_user_wid = new ChatUserWid();
+    //查询好友信息
+    auto fi_ptr = UserMgr::getintance()->GetFriendById(msg->_from_uid);
+    chat_user_wid->SetInfo(fi_ptr);
+    QListWidgetItem* item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+    item->setSizeHint(chat_user_wid->sizeHint());
+    chat_user_wid->updateLastMsg(msg->_chat_msgs);
+    UserMgr::getintance()->AppendFriendChatMsg(msg->_from_uid,msg->_chat_msgs);
+    ui->chatuser_list->insertItem(0, item);
+    ui->chatuser_list->setItemWidget(item, chat_user_wid);
+    _chat_items_added.insert(msg->_from_uid, item);
 }

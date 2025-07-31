@@ -73,6 +73,8 @@ void LogicSystem::RegisterCallbacks()
 		std::placeholders::_3);
 	_fun_callbacks[ID_AUTH_FRIEND_REQ] = std::bind(&LogicSystem::AuthFriendApply, this, std::placeholders::_1, std::placeholders::_2,
 		std::placeholders::_3);
+	_fun_callbacks[ID_TEXT_CHAT_MSG_REQ] = std::bind(&LogicSystem::DealChatTextMsg, this, std::placeholders::_1, std::placeholders::_2,
+		std::placeholders::_3);
 }
 
 bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo) {
@@ -510,4 +512,54 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	}
 	ChatGrpcClient::GetInstance()->NotifyAddFriend(to_ip_value, add_req);		//向被申请添加好友的用户所在的服务器发送添加好友请求消息
 
+}
+
+void LogicSystem::DealChatTextMsg(std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data)
+{
+	Json::Reader reader;
+	Json::Value root;
+	reader.parse(msg_data, root);
+	auto from_uid = root["fromuid"].asInt();		//发送消息的用户id	
+	auto to_uid = root["touid"].asInt();		//接收消息的用户id
+	const Json::Value text_array = root["text_array"];		//消息内容
+	
+	Json::Value rtvalue;
+	rtvalue["error"] = ErrorCodes::Success;
+	rtvalue["text_array"] = text_array;		//将消息内容添加到返回值中
+	rtvalue["fromuid"] = from_uid;		//发送消息的用户id
+	rtvalue["touid"] = to_uid;		//接收消息的用户id
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, ID_TEXT_CHAT_MSG_RSP);
+		});
+
+	auto to_str = std::to_string(to_uid);
+	auto to_ip_key = USERIPPREFIX + to_str;
+	std::string to_ip_value = "";
+	RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);		//获取被申请添加好友的用户所在的服务器ip
+	auto& cfg = ConfigMgr::Instance();
+	auto self_name = cfg["SelfServer"]["Mame"];
+	if (to_ip_value == self_name) {		//需要添加的好友与自己在同一服务器，直接发送
+		auto session = UserMgr::GetInstance()->GetSession(to_uid);		//获取被申请添加好友的用户的session
+		if (session) {
+			std::string return_str = rtvalue.toStyledString();
+			session->Send(return_str, ID_NOTIFY_TEXT_CHAT_MSG_REQ);
+		}
+		return;
+	}
+	
+	TextChatMsgReq chat_msg_req;		//构造发送消息请求消息
+	chat_msg_req.set_fromuid(from_uid);
+	chat_msg_req.set_touid(to_uid);
+	for (const auto& text : text_array) {		//将消息内容添加到通知请求消息中
+		auto content = text["content"].asString();
+		auto msg_id = text["msg_id"].asString();
+		std::cout << " send chat content is " << content << std::endl;
+		std::cout << "msgid is " << msg_id << std::endl;
+		auto* text_msg = chat_msg_req.add_textmsgs();
+		text_msg->set_msgid(msg_id);
+		text_msg->set_msgcontent(content);
+	}
+
+	ChatGrpcClient::GetInstance()->NotifyTextChatMsg(to_ip_value, chat_msg_req, rtvalue);		//向被申请添加好友的用户所在的服务器发送通知对方发送消息请求通知
 }

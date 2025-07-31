@@ -5,6 +5,19 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 
+/******************************************************************************
+ *
+ * @file       chatview.h
+ * @brief      用来显示双方对话信息的widget
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
+
+
 class ChatView:public QWidget
 {
     Q_OBJECT

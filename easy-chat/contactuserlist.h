@@ -5,6 +5,18 @@
 #include "global.h"
 #include "userdata.h"
 
+/******************************************************************************
+ *
+ * @file       contactuserlist.h
+ * @brief      自定义的联系人列表
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
+
 class ContactUserList:public QListWidget
 {
     Q_OBJECT

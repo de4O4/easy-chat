@@ -290,6 +290,64 @@ void TcpMgr::initHandlers()
         auto auth_info = std::make_shared<AuthInfo>(from_uid , name , nick , icon , sex);
         emit sig_add_auth_friend(auth_info);
     });
+
+    _handlers.insert(ID_TEXT_CHAT_MSG_RSP , [this](ReqType id, int len , QByteArray data){          //从服务器获取到主动添加好友的用户的基本信息
+        Q_UNUSED(len);          //用不上的参数
+        qDebug()<<"handler is "<<id<<"data is "<<data;
+        QJsonDocument jsondoc = QJsonDocument::fromJson(data);          //将qbytearray转换为qjsondoucument
+        if(jsondoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsondoc.object();
+
+        if(!jsonObj.contains("error")){
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "text msg req Failed, err is Json Parse Err" << err ;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if(err != ErrorCodes::SUCCESS){
+            qDebug() << "text msg req Failed, err is " << err ;
+            return;
+        }
+
+
+        qDebug() << "text msg req Success " ;
+    });
+
+
+    _handlers.insert(ID_NOTIFY_TEXT_CHAT_MSG_REQ , [this](ReqType id, int len , QByteArray data){          //从服务器获得被添加好友的基本的信息
+        Q_UNUSED(len);          //用不上的参数
+        qDebug()<<"handler is "<<id<<"data is "<<data;
+        QJsonDocument jsondoc = QJsonDocument::fromJson(data);          //将qbytearray转换为qjsondoucument
+        if(jsondoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsondoc.object();
+
+        if(!jsonObj.contains("error")){
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "Notify Chat Msg Failed, err is Json Parse Err" << err ;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if(err != ErrorCodes::SUCCESS){
+            qDebug() << "Notify Chat Msg Failed, err is " << err ;
+            return;
+        }
+
+        int from_uid = jsonObj["fromuid"].toInt();
+        int to_uid = jsonObj["touid"].toInt();
+        auto msg_ptr = std::make_shared<TextChatMsg>(from_uid , to_uid , jsonObj["text_array"].toArray());
+        emit sig_text_chat_msg(msg_ptr);
+
+    });
 }
 
 void TcpMgr::slot_tcp_connect(ServerInfo si)

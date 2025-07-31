@@ -6,6 +6,20 @@
 #include <QStyleOption>
 #include <QPainter>
 
+
+/******************************************************************************
+ *
+ * @file       bubbleframe.h
+ * @brief      聊天气泡的基类，完成聊天气泡图形的绘制
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
+
+
 class BubbleFrame:public QFrame
 {
     Q_OBJECT

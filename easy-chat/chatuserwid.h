@@ -6,6 +6,18 @@
 #include "listitembase.h"
 #include "userdata.h"
 
+/******************************************************************************
+ *
+ * @file       chatuserwid.h
+ * @brief      在聊天列表中的每一个小条目的widget
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
+
 namespace Ui {
 class ChatUserWid;
 }
@@ -24,6 +36,7 @@ public:
     void SetInfo(std::shared_ptr<FriendInfo> friend_info);
     std::shared_ptr<UserInfo> GetUserInfo();
     void SetInfo(QString name, QString head, QString msg);
+    void updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs);
 private:
     Ui::ChatUserWid *ui;
     QString _name;

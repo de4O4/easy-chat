@@ -119,7 +119,7 @@ void ChatPage::on_send_btn_clicked()
             QByteArray utf8message = msglist[i].content.toUtf8();
             obj["content"] = QString::fromUtf8(utf8message);
             obj["msgid"] = uuidstring;
-            textarray.append(obj);
+            textarray.append(obj);              //
             auto text_msg = std::make_shared<TextChatData>(uuidstring , obj["content"].toString() , user_info->_uid , _user_info->_uid);
             emit sig_append_send_chat_msg(text_msg);        // 通知界面添加发送的消息（本地显示）
         }else if(type == "image"){

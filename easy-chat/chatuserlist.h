@@ -6,6 +6,18 @@
 #include <QScrollBar>
 #include <QDebug>
 
+/******************************************************************************
+ *
+ * @file       chatuserlist.h
+ * @brief      自定义的聊天对象列表
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
+
 class ChatUserList:public QListWidget
 {
     Q_OBJECT

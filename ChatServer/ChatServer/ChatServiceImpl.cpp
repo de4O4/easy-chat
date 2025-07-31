@@ -71,8 +71,31 @@ Status ChatServiceImpl::NotifyAuthFriend(ServerContext* context,
 }
 
 Status ChatServiceImpl::NotifyTextChatMsg(::grpc::ServerContext* context,
-    const TextChatMsgReq* request, TextChatMsgRsp* response) {
+    const TextChatMsgReq* request, TextChatMsgRsp* reply) {
+    auto to_uid = request->touid();
+    auto from_uid = request->fromuid();
+    auto session = UserMgr::GetInstance()->GetSession(to_uid);
+
+    if (session == nullptr) {            //用户不存在或不在线
+        return Status::OK;
+    }
+    Json::Value rtvalue;
+    rtvalue["error"] = ErrorCodes::Success;
+    rtvalue["fromuid"] = from_uid;
+    rtvalue["touid"] = to_uid;
+    Json::Value text_array;
+    for (auto& text : request->textmsgs()) {
+        Json::Value elem;
+        elem["content"] = text.msgcontent();
+        elem["msgid"] = text.msgid();
+        text_array.append(elem);
+    }
+	rtvalue["text_array"] = text_array;            //将文本消息内容放入json中
+    auto return_str = rtvalue.toStyledString();
+    session->Send(return_str, ID_NOTIFY_TEXT_CHAT_MSG_REQ);           //将想要添加好友的信息发送给主动添加方
+
     return Status::OK;
+
 }
 
 bool ChatServiceImpl::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo) {

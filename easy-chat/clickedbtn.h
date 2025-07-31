@@ -3,6 +3,17 @@
 #include "QPushButton"
 #include "global.h"
 
+/******************************************************************************
+ *
+ * @file       clickedbtn.h
+ * @brief      自定义可点击的按钮，选中未选中状态的展示不同
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
 class ClickedBtn:public QPushButton
 {
     Q_OBJECT

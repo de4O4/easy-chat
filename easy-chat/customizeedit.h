@@ -6,6 +6,18 @@
 #include <QFocusEvent>
 #include <QByteArray>
 
+/******************************************************************************
+ *
+ * @file       customizeedit.h
+ * @brief      自定义的输入框，对输入长度做了限制
+ *
+ * @author     duya
+ * @date       2025/07/31
+ * @history
+ *****************************************************************************/
+
+
+
 class CustomizeEdit : public QLineEdit
 {
     Q_OBJECT

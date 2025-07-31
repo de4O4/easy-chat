@@ -59,6 +59,8 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
         "std::shared_ptr<AuthInfo>",
         "sig_auth_rsp",
         "std::shared_ptr<AuthRsp>",
+        "sig_text_chat_msg",
+        "std::shared_ptr<TextChatMsg>",
         "slot_tcp_connect",
         "ServerInfo",
         "slot_send_data",
@@ -96,13 +98,17 @@ template <> constexpr inline auto TcpMgr::qt_create_metaobjectdata<qt_meta_tag_Z
         QtMocHelpers::SignalData<void(std::shared_ptr<AuthRsp>)>(18, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 19, 2 },
         }}),
+        // Signal 'sig_text_chat_msg'
+        QtMocHelpers::SignalData<void(std::shared_ptr<TextChatMsg>)>(20, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 21, 2 },
+        }}),
         // Slot 'slot_tcp_connect'
-        QtMocHelpers::SlotData<void(ServerInfo)>(20, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 21, 13 },
+        QtMocHelpers::SlotData<void(ServerInfo)>(22, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 23, 13 },
         }}),
         // Slot 'slot_send_data'
-        QtMocHelpers::SlotData<void(ReqType, QByteArray)>(22, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 5, 23 }, { QMetaType::QByteArray, 7 },
+        QtMocHelpers::SlotData<void(ReqType, QByteArray)>(24, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 5, 25 }, { QMetaType::QByteArray, 7 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -135,8 +141,9 @@ void TcpMgr::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 5: _t->sig_friend_apply((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<AddFriendApply>>>(_a[1]))); break;
         case 6: _t->sig_add_auth_friend((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<AuthInfo>>>(_a[1]))); break;
         case 7: _t->sig_auth_rsp((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<AuthRsp>>>(_a[1]))); break;
-        case 8: _t->slot_tcp_connect((*reinterpret_cast< std::add_pointer_t<ServerInfo>>(_a[1]))); break;
-        case 9: _t->slot_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[2]))); break;
+        case 8: _t->sig_text_chat_msg((*reinterpret_cast< std::add_pointer_t<std::shared_ptr<TextChatMsg>>>(_a[1]))); break;
+        case 9: _t->slot_tcp_connect((*reinterpret_cast< std::add_pointer_t<ServerInfo>>(_a[1]))); break;
+        case 10: _t->slot_send_data((*reinterpret_cast< std::add_pointer_t<ReqType>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[2]))); break;
         default: ;
         }
     }
@@ -156,6 +163,8 @@ void TcpMgr::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(std::shared_ptr<AuthInfo> )>(_a, &TcpMgr::sig_add_auth_friend, 6))
             return;
         if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(std::shared_ptr<AuthRsp> )>(_a, &TcpMgr::sig_auth_rsp, 7))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (TcpMgr::*)(std::shared_ptr<TextChatMsg> )>(_a, &TcpMgr::sig_text_chat_msg, 8))
             return;
     }
 }
@@ -183,14 +192,14 @@ int TcpMgr::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 11;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 11)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 10;
+        _id -= 11;
     }
     return _id;
 }
@@ -241,5 +250,11 @@ void TcpMgr::sig_add_auth_friend(std::shared_ptr<AuthInfo> _t1)
 void TcpMgr::sig_auth_rsp(std::shared_ptr<AuthRsp> _t1)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 7, nullptr, _t1);
+}
+
+// SIGNAL 8
+void TcpMgr::sig_text_chat_msg(std::shared_ptr<TextChatMsg> _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 8, nullptr, _t1);
 }
 QT_WARNING_POP
